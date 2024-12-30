@@ -1,9 +1,9 @@
-# Main-Sequence Binary Lightcurve Modeling
+# Binara
 
 Code to fit the lightcurves of close main-sequence binary systems. It includes an analytical model for the lightcurves based on [Engel 2020](https://academic.oup.com/mnras/article/497/4/4884/5881975), and performs the fitting using a MCMC method.
 
 ### Lightcurve Model
-The lightcurve model includes flux contributions from Doppler beaming, reflection effects, ellipsoidal varaitions and eclipses. The changes in eclipse depths from limb darkerning effects are also modeled. For a more detailed version of the 
+The lightcurve model includes flux contributions from Doppler beaming, reflection effects, ellipsoidal variations and eclipses. The changes in eclipse depths from limb darkening effects are also modeled. For a more detailed version of the 
 
 ### MCMC Fitting
 
@@ -23,9 +23,9 @@ The code is available on Github. Simply run:
 ```bash
 
 # Clone the repository
-git clone https://github.com/golmschenk/eclipsing_binary_modeling.git
+git clone https://github.com/golmschenk/binara.git
 
-cd eclipsing_binary_modeling
+cd binara
 ```
 
 ### Building with CMake
@@ -55,7 +55,7 @@ The executable can also be compiled and linked directly.
 ```bash
 mkdir build
 
-gcc src/mcmc_wrapper.c src/likelihood.c src/util.c -O3 -fopenmp -o build/heart_beat_generation
+gcc src/mcmc_wrapper.c src/likelihood.c src/util.c -O3 -fopenmp -o build/binara
 ```
 
 ## Usage
