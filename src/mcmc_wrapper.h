@@ -17,8 +17,15 @@
 
   void Ptmcmc(int *index, double temp[], double logL[], double logP[], const int NCHAINS);
 
-  void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_flag, const int color_flag, 
-                const int secular_drift_flag);
+  #ifdef __cplusplus
+  extern "C" {
+  #endif
+
+    void Run_MCMC(int, int, int, int, int, int);
+
+  #ifdef __cplusplus
+  }
+  #endif
 
   void Make_Files(const int tic, const int sector, const int run_id, const int gmag_flag, const int color_flag,
                   const int secular_drift_flag, char *chainname, char *outname, char *parfile);

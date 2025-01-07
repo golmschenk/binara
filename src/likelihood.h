@@ -8,7 +8,7 @@
         double *Z1_arr, double *Z2_arr, double *rr_arr, 
         double *ff_arr, int Nt);
   void Calculate_Lightcurve(double *times, long Nt, double *pars,
-        double *template);
+        double *template_);
   void Swap(double* a, double* b);
 
 double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[], 

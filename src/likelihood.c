@@ -609,7 +609,7 @@ Parameters:
 
 */
 void Calculate_Lightcurve(double *times, long Nt, double *pars,
-      double *template)
+      double *template_)
 {
   // Extract the paramters
   double logM1 = pars[0];
@@ -740,7 +740,7 @@ void Calculate_Lightcurve(double *times, long Nt, double *pars,
 	  //} 
 
     // Full lightcurve
-    template[i] = (Amag1[i] + Amag2[i]);
+    template_[i] = (Amag1[i] + Amag2[i]);
   }
 
   // Compare the median
@@ -751,13 +751,13 @@ void Calculate_Lightcurve(double *times, long Nt, double *pars,
 
   // Normalize the lightcurve
 
-  Remove_Median(template, 0, Nt, median);
+  Remove_Median(template_, 0, Nt, median);
 
   for (int i=0; i<Nt; i++)
   {
     //template[i] -= median;
-    template[i] += 1;
-    template[i] = (1*blending + template[i]*(1 - blending)) * flux_tune;
+    template_[i] += 1;
+    template_[i] = (1*blending + template_[i]*(1 - blending)) * flux_tune;
   }
   return;
 }
