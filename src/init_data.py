@@ -72,9 +72,7 @@ def load_tic_data(TIC: int, sector:int = -1):
             Choose between "plain", "gmag" and "color"
 '''
 def set_mcmc_pars(TIC: int, sector: int = -1, secular_drift_sources = False):
-    try: all_data = load_tic_data(TIC=TIC, sector=sector)
-    except Exception as error:
-        return None
+    all_data = load_tic_data(TIC=TIC, sector=sector)
     (tdata, ydata, yerrdata, magdata, magerr, points_per_sector, 
     NSECTORS, period) = all_data
     # set the total number of parameters in the mcmc run
