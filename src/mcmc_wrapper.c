@@ -526,7 +526,7 @@ void Make_Files(const int tic, const int sector, const int run_id, const int gma
   char run_num[15] = "";
   char sec_num[15] = "";
 
-  sprintf(prefix, "/Users/golmschenk/Code/heart_beat_generation/data");
+  sprintf(prefix, "data");
   sprintf(tic_num, "%d", tic);
   sprintf(run_num, "_%d", run_id);
   if (sector == -1)

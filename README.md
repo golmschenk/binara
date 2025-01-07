@@ -18,9 +18,9 @@ The lightcurve model includes flux contributions from Doppler beaming, reflectio
 ## Installation
 
 ### Downloading the code
-The code is available on Github. Simply run:
+The code is available on GitHub. Simply run:
 
-```bash
+```sh
 
 # Clone the repository
 git clone https://github.com/golmschenk/binara.git
@@ -31,7 +31,7 @@ cd binara
 ### Building with CMake
 Building with CMake is not necessary since the source code is contained in only three C files. However, it is extremely convenient. In your terminal, simply run:
 
-```bash
+```sh
 # Install dependencies
 cmake -B build
 
@@ -43,7 +43,7 @@ make -j
 
 Note: Building with OpenMP support on some of the Apple machines with M1 or M2 chips may require you to specify a different compiler than AppleClang. E.g., if you have downloaded OpenMP and gcc via brew, you may instead want to do:
 
-```bash
+```sh
 
 cmake -B build -D CMAKE_CXX_COMPILER=/opt/homebrew/bin/g++-14 \
 -D CMAKE_C_COMPILER=/opt/homebrew/bin/gcc-14
@@ -52,7 +52,7 @@ cmake -B build -D CMAKE_CXX_COMPILER=/opt/homebrew/bin/g++-14 \
 ### Building Directly
 The executable can also be compiled and linked directly. 
 
-```bash
+```sh
 mkdir build
 
 gcc src/mcmc_wrapper.c src/likelihood.c src/util.c -O3 -fopenmp -o build/binara
@@ -62,7 +62,7 @@ gcc src/mcmc_wrapper.c src/likelihood.c src/util.c -O3 -fopenmp -o build/binara
 
 Examples of how to use the project.
 
-```bash
+```sh
 # Run the project
 
 ```

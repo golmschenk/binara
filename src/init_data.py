@@ -24,7 +24,7 @@ import glob, sys, os, re
 '''
 def load_tic_data(TIC: int, sector:int = -1):
     # Load lightcurve data
-    DATA_DIR = "/Users/golmschenk/Code/heart_beat_generation/data/lightcurves/folded_lightcurves/"
+    DATA_DIR = "data/lightcurves/folded_lightcurves/"
     FNAME = DATA_DIR
     if sector == -1: FNAME += "%d_sector_all.txt" % TIC; print("Loading all lightcurves of TIC %d" %TIC)
     else: FNAME += "%d_sector_%d.txt" % (TIC, sector)
@@ -41,7 +41,7 @@ def load_tic_data(TIC: int, sector:int = -1):
     period = float(header[-1])
     # Load magdata
     magdata, magerr = [], []
-    MAG_DIR = "/Users/golmschenk/Code/heart_beat_generation/data/magnitudes/"
+    MAG_DIR = "data/magnitudes/"
     FNAME = MAG_DIR + "%d.txt" % TIC
     # Fill empty gmag data
     
@@ -183,7 +183,7 @@ def write_mcmc_data(TIC: int, sector: int = -1, run_id: int = 1, secular_drift_s
     if set_mcmc_pars(TIC=TIC, sector=sector) is None: return None
     constants, parameter_info, arrays, misc = set_mcmc_pars(
                                                 TIC=TIC, sector=sector, secular_drift_sources=secular_drift_sources)
-    OUTDIR = "/Users/golmschenk/Code/heart_beat_generation/data/py_initialize/"
+    OUTDIR = "data/py_initialize/"
     if sector == -1: sector = "all"
     FNAME = OUTDIR + "%d_sector_%s_run_%d.txt" % (TIC, str(sector), run_id)
     if secular_drift_sources: FNAME = OUTDIR + "%d_sector_%s_run_%d_drift.txt" % (TIC, str(sector), run_id)
@@ -224,7 +224,7 @@ def write_mcmc_data(TIC: int, sector: int = -1, run_id: int = 1, secular_drift_s
     return 1
 
 def get_all_tics():
-    TICS_LOC = glob.glob("/Users/golmschenk/Code/heart_beat_generation/data/lightcurves/folded_lightcurves/*.txt")
+    TICS_LOC = glob.glob("data/lightcurves/folded_lightcurves/*.txt")
     TICS_LIST = []
 
     for loc in TICS_LOC:
@@ -238,7 +238,7 @@ def get_all_tics():
     return TICS_LIST
 
 def make_par_files(tic: int):
-    DATA_DIR = "/Users/golmschenk/Code/heart_beat_generation/data/"
+    DATA_DIR = "data/"
     chainfname = DATA_DIR + "chains/chain.%d_sector_all_gmag_OMP_1.dat" % tic
     data = np.loadtxt(chainfname,  skiprows=5000)
     pars = data[-110, 2:]
@@ -251,7 +251,7 @@ def make_par_files(tic: int):
 
 import subprocess
 def move_teo_tics(tic: int, sector: int):
-    data_dir = r'/Users/golmschenk/Code/heart_beat_generation/data/chains/'
+    data_dir = r'data/chains/'
     data_dir += 'chain.%d_sector_%d_gmag_OMP_1.dat' % (tic, sector)
     subprocess.call(["cp", data_dir, "teo_tics"])
     return
