@@ -14,13 +14,20 @@ execute_process(
 find_package(nanobind CONFIG REQUIRED)
 
 
-add_executable(binara_exe src/mcmc_wrapper.c src/likelihood.c src/likelihood.h src/util.c src/util.h)
+add_executable(binara_exe src/mcmc_wrapper.c src/likelihood.c src/likelihood.h src/util.c src/util.h
+        src/python_interrupt_handling.cpp
+        src/python_interrupt_handling.h
+)
 target_link_libraries(binara_exe PRIVATE OpenMP::OpenMP_CXX)
 
 
 nanobind_add_module(binara_ext STABLE_ABI NB_STATIC src/binara_ext.cpp src/mcmc_wrapper.c src/likelihood.c
-        src/likelihood.h src/util.c src/util.h)
+        src/likelihood.h src/util.c src/util.h
+        src/python_interrupt_handling.cpp
+        src/python_interrupt_handling.h
+)
 target_link_libraries(binara_ext PRIVATE OpenMP::OpenMP_CXX)
+target_compile_definitions(binara_ext PRIVATE IS_PYTHON_LIBRARY_BUILD)
 nanobind_add_stub(
         binara_ext_stub
         MODULE binara_ext

@@ -1,10 +1,12 @@
 #include "mcmc_wrapper.h"
+#include "python_interrupt_handling.h"
 
 
 
 void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_flag, const int color_flag, 
               const int secular_drift_flag)
 {
+  check_for_and_handle_python_interrupt();
   //omp_set_num_threads(1);
   // Load the MCMC data
   long int buffer_size;
@@ -81,6 +83,8 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
   Make_Files(tic, sector, run_id, gmag_flag, color_flag, secular_drift_flag, chainname, outname, parname);
 
   srand(NITER);
+
+  check_for_and_handle_python_interrupt();
 
   for (int i=0; i<NCHAINS; i++)
   {
@@ -160,6 +164,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
   // Main MCMC loop starts here
   for (int iter=0; iter<NITER; iter++) 
   {
+    check_for_and_handle_python_interrupt();
     int k = iter - (iter / NPAST) * NPAST;
 
     //#pragma omp parallel for schedule(static) if(ENABLE_OPENMP)
