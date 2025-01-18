@@ -7,16 +7,28 @@ find_package(OpenMP REQUIRED)
 find_package(Python 3.8
         REQUIRED COMPONENTS Interpreter Development.Module
         OPTIONAL_COMPONENTS Development.SABIModule)
+
 execute_process(
         COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
         OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
 find_package(nanobind CONFIG REQUIRED)
 
+
 add_executable(binara_exe src/mcmc_wrapper.c src/likelihood.c src/likelihood.h src/util.c src/util.h)
 target_link_libraries(binara_exe PRIVATE OpenMP::OpenMP_CXX)
+
 
 nanobind_add_module(binara_ext STABLE_ABI NB_STATIC src/binara_ext.cpp src/mcmc_wrapper.c src/likelihood.c
         src/likelihood.h src/util.c src/util.h)
 target_link_libraries(binara_ext PRIVATE OpenMP::OpenMP_CXX)
+nanobind_add_stub(
+        binara_ext_stub
+        MODULE binara_ext
+        OUTPUT binara_ext.pyi
+        PYTHON_PATH $<TARGET_FILE_DIR:binara_ext>
+        DEPENDS binara_ext
+)
 
 install(TARGETS binara_ext LIBRARY DESTINATION binara)
+install(FILES "${CMAKE_BINARY_DIR}/binara_ext.pyi" DESTINATION binara)
+

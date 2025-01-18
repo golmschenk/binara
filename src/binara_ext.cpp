@@ -2,7 +2,7 @@
 
 #include "mcmc_wrapper.h"
 
-NB_MODULE(binara_ext, m)
+NB_MODULE(binara_ext, module)
 {
-    m.def("run_mcmc", &Run_MCMC);
+    module.def("run_mcmc", &Run_MCMC);
 }
