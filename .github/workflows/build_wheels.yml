@@ -14,6 +14,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: install_dependencies_macos
+        if: runner.os == 'MacOS'
+        run: |
+          brew install llvm
+          brew install libomp
+          # Add Homebrew paths to path.
+          echo "PATH=$(brew --prefix)/bin:$(brew --prefix)/opt/llvm/bin:$(brew --prefix)/opt/libomp/bin:$PATH" >> $GITHUB_ENV
+          echo "CC=$(brew --prefix)/opt/llvm/bin/clang" >> $GITHUB_ENV
+          echo "CXX=$(brew --prefix)/opt/llvm/bin/clang++" >> $GITHUB_ENV
+
+
       - name: build_wheels
         uses: pypa/cibuildwheel@v2.16.5
 
