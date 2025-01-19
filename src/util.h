@@ -4,7 +4,6 @@
   #include "stdlib.h"
   #include "math.h"
   #include "string.h"
-  #include <unistd.h>
 
   #define PI 3.14159265358979323846
   #define SQRT_2PI 2.5066282746

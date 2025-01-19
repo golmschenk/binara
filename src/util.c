@@ -102,12 +102,14 @@ double Gaussian(double x, double mean, double sigma)
 // Function to check if (parameter) file exists
 int exists(const char *fname)
 {
-    FILE *file;
-    if (access(fname, R_OK) == 0){
-      return 1;
-    }
-    else {return 0;}
+  FILE *file = fopen(fname, "r");
+  if (file != NULL) {
+    fclose(file);
+    return 1; // File exists
+  }
+  return 0; // File does not exist
 }
+
 
 void Get_Datafile_Name(const int tic, const int sector, const int run_id, const int secular_drift_flag,
                       char path[])
