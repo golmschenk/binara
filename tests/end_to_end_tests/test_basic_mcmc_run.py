@@ -6,9 +6,6 @@ from tests.working_directory_context import use_working_directory
 
 
 def test_can_run_mcmc():
-    import faulthandler
-
-    faulthandler.enable(all_threads=True)
-
+    binara.enforce_expected_data_directory_tree.enforce_expected_data_directory_tree()
     with use_working_directory(Path(__file__).parent):
         binara.run_mcmc(220052771, 6, 1, 0, 0, 0)

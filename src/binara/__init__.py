@@ -1,1 +1,2 @@
 from .binara_ext import run_mcmc
+from binara import enforce_expected_data_directory_tree
