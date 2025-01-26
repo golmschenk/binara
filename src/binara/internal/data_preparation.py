@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-def enforce_expected_data_directory_tree(data_directory_parent=Path('.')):
+def enforce_expected_data_directory_tree(data_directory_parent=Path('..')):
     data_directory = data_directory_parent.joinpath('data')
     data_directory.mkdir(exist_ok=True, parents=True)
     data_directory.joinpath('chains').mkdir(exist_ok=True, parents=True)
