@@ -704,6 +704,7 @@ void Log_Data(char *chainname, char *outname, char *parname, int iter, double **
 
   fclose(out_file);
   fclose(chain_file);
+  fclose(par_file);
   return;
 }
 
