@@ -13,6 +13,8 @@ set(BINARA_EXE_AND_EXT_SHARED_SOURCES
         src/util.h
         src/python_interrupt_handling.cpp
         src/python_interrupt_handling.h
+        src/random_generator.cpp
+        src/random_generator.h
 )
 
 add_executable(binara_exe

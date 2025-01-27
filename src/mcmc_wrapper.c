@@ -1,5 +1,6 @@
 #include "mcmc_wrapper.h"
 #include "python_interrupt_handling.h"
+#include "random_generator.h"
 
 
 
@@ -82,7 +83,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
 
   Make_Files(tic, sector, run_id, gmag_flag, color_flag, secular_drift_flag, chainname, outname, parname);
 
-  srand(NITER);
+  RandomGenerator* random_generator = create_random_generator(NITER);
 
   check_for_and_handle_python_interrupt();
 
@@ -322,7 +323,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
       acc_arr[i] = 0;
 
       /* parallel tempering */
-      Ptmcmc(index, temp, logLx, logPx, NCHAINS);
+      Ptmcmc(index, temp, logLx, logPx, NCHAINS, random_generator);
     }
     //update progress to screen and write data
     if(iter%100==0) 
@@ -468,7 +469,7 @@ void Differential_Evolution_Proposal(double *x, long *seed, double **history, do
 /* Other functions*/
 
 
-void Ptmcmc(int *index, double temp[], double logL[], double logP[], const int NCHAINS)
+void Ptmcmc(int *index, double temp[], double logL[], double logP[], const int NCHAINS, RandomGenerator* random_generator)
 {
   int a, b;
 	int olda, oldb;
@@ -496,7 +497,7 @@ void Ptmcmc(int *index, double temp[], double logL[], double logP[], const int N
 	 */ 
 	
   /* Siddhant: b can be -1, gives seg fault, put bounds on b*/
-	b = (int) (((double)rand()/(RAND_MAX))*((double)(NCHAINS-1)));
+	b = (int) (get_random_value(random_generator)*(double)(NCHAINS-1));
 	a = b + 1;
 	
 	olda = index[a];
@@ -511,7 +512,7 @@ void Ptmcmc(int *index, double temp[], double logL[], double logP[], const int N
   //dlogP = logP1 - logP2;
 	H  = (heat2 - heat1)/(heat2*heat1);
 	alpha = exp(dlogL*H);
-	beta  = ((double)rand()/(RAND_MAX));
+	beta  = get_random_value(random_generator);
 	if(alpha >= beta)
 	{
 		index[a] = oldb;

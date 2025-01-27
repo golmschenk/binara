@@ -2,6 +2,7 @@
   #define _MCMC_WRAPPER_H_
   #include "likelihood.h"
   #include "omp.h"
+  #include "random_generator.h"
 
   #define ENABLE_OPENMP (1)
   
@@ -15,7 +16,7 @@
   void Differential_Evolution_Proposal(double *x, long *seed, double **history, double *y, RNG_Vars *state, 
     const int NPARS, const int NPAST, const double GAMMA);
 
-  void Ptmcmc(int *index, double temp[], double logL[], double logP[], const int NCHAINS);
+  void Ptmcmc(int *index, double temp[], double logL[], double logP[], const int NCHAINS, RandomGenerator *random_generator);
 
   #ifdef __cplusplus
   extern "C" {
