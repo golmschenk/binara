@@ -52,9 +52,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
 
   const double GAMMA = 2.388/sqrt(2.* (double)NPARS);
 
-  RNG_Vars states[NCHAINS];
-
-  double logLx[NCHAINS];
+    double logLx[NCHAINS];
   double logPx[NCHAINS];
   double temp[NCHAINS];
 
@@ -74,8 +72,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
   int DEacc = 0;
   int index[NCHAINS];
 
-  long seeds[NCHAINS];
-  RandomGenerator* random_generators_for_chains[NCHAINS];
+    RandomGenerator* random_generators_for_chains[NCHAINS];
   const int NTHREADS = (int)(NCHAINS / 2);
 
   char chainname[512] = "";
@@ -84,29 +81,16 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
 
   Make_Files(tic, sector, run_id, gmag_flag, color_flag, secular_drift_flag, chainname, outname, parname);
 
-  // Seeded with -1 since the below chain generators start at 0.
-  RandomGenerator* random_generator = create_random_generator(-1);
+  RandomGenerator* random_generator = create_random_generator(0);
 
   check_for_and_handle_python_interrupt();
 
   for (int i=0; i<NCHAINS; i++)
   {
       random_generators_for_chains[i] = create_random_generator(i);
-    seeds[i] = i;
     DEtrial_arr[i] = 0;
     DEacc_arr[i] = 0;
     acc_arr[i] = 0;
-
-    // for parallel random number generation
-    states[i].idum2 = 123456789;
-    states[i].iy =  0;
-    for (int l=0; l<NTAB; l++)
-    {
-      states[i].iv[l] = 0;
-    }
-    states[i].iset =  0;
-    states[i].gset = 0.;
-    states[i].cts = 0;
   }
 
   // Allocate memory for the mcmc arrays
@@ -198,8 +182,8 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
       //gaussian jumps
       if(jump == 0)
       {
-        Gaussian_Proposal(x[chain_id], &seeds[j], sigma, jscale, temp[j], y, &states[j], NPARS,
-                          random_generators_for_chains, j);
+          Gaussian_Proposal(x[chain_id], sigma, jscale, temp[j], y, NPARS,
+                            random_generators_for_chains, j);
         jump_type = 1;
       }
 
@@ -212,8 +196,8 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
           DEtrial_arr[j]++;
         }
 
-        Differential_Evolution_Proposal(x[chain_id], &seeds[j], history[j], y, &states[j],
-                                        NPARS, NPAST, GAMMA, random_generators_for_chains, j);
+          Differential_Evolution_Proposal(x[chain_id], history[j], y,
+                                          NPARS, NPAST, GAMMA, random_generators_for_chains, j);
         jump_type = 2;
 
         for (int i=0;i<NPARS;i++) 
@@ -223,8 +207,8 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
 
         if (dx_mag < 1e-6)
         {
-          Gaussian_Proposal(x[chain_id], &seeds[j], sigma, jscale, temp[j], y, &states[j], NPARS,
-                            random_generators_for_chains, j);
+            Gaussian_Proposal(x[chain_id], sigma, jscale, temp[j], y, NPARS,
+                              random_generators_for_chains, j);
           jump_type = 1;
         }
       }
@@ -387,26 +371,8 @@ int main(int argc, char* argv[])
 }
 
 
-/*
-  Some useful functions for the lightcurve calculation
-*/
-void Uniform_Proposal(double *x, long *seed, bounds limits[], double *y, RNG_Vars *state, const int NPARS,
-                      RandomGenerator** random_generators_for_chains, int chain_number)
-{
-  int n;
-  double dx[NPARS];
-  
-  //compute size of jumps
-  for(n=0; n<NPARS; n++) dx[n] = get_uniform_random_value(random_generators_for_chains[chain_number])*(
-          limits[n].hi - limits[n].lo);
-  
-  //uniform draw on prior range
-  for(n=0; n<NPARS; n++) y[n] = limits[n].lo + dx[n];
-  return;
-}
-
-void Gaussian_Proposal(double *x, long *seed, double *sigma, double scale, double temp, 
-  double *y, RNG_Vars *state, const int NPARS, RandomGenerator** random_generators_for_chains, int chain_number)
+void Gaussian_Proposal(double *x, double *sigma, double scale, double temp, double *y, const int NPARS,
+                       RandomGenerator **random_generators_for_chains, int chain_number)
 {
   int n;
   double gamma;
@@ -429,9 +395,9 @@ void Gaussian_Proposal(double *x, long *seed, double *sigma, double scale, doubl
 }
 
 
-void Differential_Evolution_Proposal(double *x, long *seed, double **history, double *y, RNG_Vars *state,
-                                     const int NPARS, const int NPAST, const double GAMMA,
-                                     RandomGenerator** random_generators_for_chains, int chain_number)
+void Differential_Evolution_Proposal(double *x, double **history, double *y, const int NPARS, const int NPAST,
+                                     const double GAMMA, RandomGenerator **random_generators_for_chains,
+                                     int chain_number)
 {
   int n;
   int a;

@@ -4,6 +4,19 @@ project(binara)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(OpenMP REQUIRED)
+find_package(Boost COMPONENTS REQUIRED random)
+#if(NOT Boost_FOUND)
+#    set(Boost_ENABLE_ALL OFF)
+#    set(Boost_ENABLE_RANDOM ON)
+#    include(FetchContent)
+#    FetchContent_Declare(
+#            Boost
+#            GIT_REPOSITORY https://github.com/boostorg/boost.git
+#            GIT_TAG boost-1.83.0
+#    )
+#    FetchContent_MakeAvailable(Boost)
+#endif()
+
 
 set(BINARA_EXE_AND_EXT_SHARED_SOURCES
         src/mcmc_wrapper.c
@@ -21,6 +34,7 @@ add_executable(binara_exe
         ${BINARA_EXE_AND_EXT_SHARED_SOURCES}
 )
 target_link_libraries(binara_exe PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(binara_exe PRIVATE Boost::random)
 
 # When installed as a Python package (via pip using scikit-build-core).
 if(SKBUILD)
@@ -38,6 +52,7 @@ if(SKBUILD)
     )
 
     target_link_libraries(binara_ext PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries(binara_ext PRIVATE Boost::random)
     target_compile_definitions(binara_ext PRIVATE IS_PYTHON_LIBRARY_BUILD)
     nanobind_add_stub(
             binara_ext_stub

@@ -1,12 +1,13 @@
 #include "random_generator.h"
 
-#include <random>
+#include <boost/random.hpp>
+
 
 class RandomGenerator
 {
-    std::mt19937 generator;
-    std::uniform_real_distribution<> uniformDistribution;
-    std::normal_distribution<> normalDistribution;
+    boost::random::mt19937 generator;
+    boost::random::uniform_real_distribution<> uniformDistribution;
+    boost::random::normal_distribution<> normalDistribution;
 
 public:
     explicit RandomGenerator(const unsigned int seed = 0)

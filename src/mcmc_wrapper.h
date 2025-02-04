@@ -8,14 +8,12 @@
   
   extern const int npars_common, npars_unique;
 
-  void Uniform_Proposal(double *x, long *seed, bounds limits[], double *y, RNG_Vars *state, const int NPARS,
-    RandomGenerator** random_generators_for_chains, int chain_number);
+void Gaussian_Proposal(double *x, double *sigma, double scale, double temp, double *y, const int NPARS,
+                       RandomGenerator **random_generators_for_chains, int chain_number);
 
-  void Gaussian_Proposal(double *x, long *seed, double *sigma, double scale, double temp, 
-    double *y, RNG_Vars *state, const int NPARS, RandomGenerator** random_generators_for_chains, int chain_number);
-
-  void Differential_Evolution_Proposal(double *x, long *seed, double **history, double *y, RNG_Vars *state, 
-    const int NPARS, const int NPAST, const double GAMMA, RandomGenerator** random_generators_for_chains, int chain_number);
+  void Differential_Evolution_Proposal(double *x, double **history, double *y, const int NPARS, const int NPAST,
+                                       const double GAMMA, RandomGenerator **random_generators_for_chains,
+                                       int chain_number);
 
   void Ptmcmc(int *index, double temp[], double logL[], double logP[], const int NCHAINS, RandomGenerator *random_generator);
 

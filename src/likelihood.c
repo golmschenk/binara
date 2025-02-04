@@ -1,4 +1,5 @@
 #include "likelihood.h"
+#include "util.h"
 
 void Swap(double* a, double* b) 
 { 
@@ -172,7 +173,7 @@ double Beaming(double P, double M1, double M2, double e, double inc,
                 double omega0, double nu, double alpha_beam)
 {
   double q = M2/M1;
-  double fac1 = q / pow(1 + q, 2/3);
+  double fac1 = q / pow(1 + q, 2.0/3);
   double fac2 = pow(M1, 1./3);
   double fac3 = pow(P, -1./3);
   double fac4 = sin(inc) * cos(omega0 + nu) / sqrt(1 - SQR(e));

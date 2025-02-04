@@ -18,10 +18,13 @@ build-dir = "build/{wheel_tag}"
 wheel.py-api = "cp312"
 
 [tool.cibuildwheel]
-skip = ["pp*", "cp36-*", "cp37-*", "cp38-*", "*_i686"]
+skip = ["pp*", "cp36-*", "cp37-*", "cp38-*", "*_i686", "*musllinux*"]
 build-verbosity = "3"
 test-command = "pytest {project}/tests"
 test-requires = "pytest"
 
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.14"
+
+[tool.cibuildwheel.linux]
+repair-wheel-command = "LD_LIBRARY_PATH=/boost/lib:${LD_LIBRARY_PATH} auditwheel repair -w {dest_dir} {wheel}"
