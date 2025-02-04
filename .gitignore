@@ -590,4 +590,4 @@ cython_debug/
 
 
 # Project specific.
-!tests/**/data/**/*.out
+!tests/**/*.out
