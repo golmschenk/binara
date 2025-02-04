@@ -75,6 +75,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
   int index[NCHAINS];
 
   long seeds[NCHAINS];
+  RandomGenerator* random_generators_for_chains[NCHAINS];
   const int NTHREADS = (int)(NCHAINS / 2);
 
   char chainname[512] = "";
@@ -83,12 +84,14 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
 
   Make_Files(tic, sector, run_id, gmag_flag, color_flag, secular_drift_flag, chainname, outname, parname);
 
-  RandomGenerator* random_generator = create_random_generator(NITER);
+  // Seeded with -1 since the below chain generators start at 0.
+  RandomGenerator* random_generator = create_random_generator(-1);
 
   check_for_and_handle_python_interrupt();
 
   for (int i=0; i<NCHAINS; i++)
   {
+      random_generators_for_chains[i] = create_random_generator(i);
     seeds[i] = i;
     DEtrial_arr[i] = 0;
     DEacc_arr[i] = 0;
@@ -131,7 +134,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
   {
     for(int j=0; j<NCHAINS; j++) 
     {
-      double tmp1 = Ran2_Parallel(&seeds[0], &states[0]);
+      double tmp1 = get_uniform_random_value(random_generators_for_chains[j]);
       x[j][i] = (limits[i].lo + tmp1*(limits[i].hi - limits[i].lo));
       if (i == 2) 
       {
@@ -175,7 +178,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
       double y[NPARS];
 
       // Random number
-      double alpha = Ran2_Parallel(&seeds[j], &states[j]);
+      double alpha = get_uniform_random_value(random_generators_for_chains[j]);
 
       // Jump scale and steps
       double jscale = pow(10.,-6.+6.*alpha);
@@ -187,7 +190,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
       int jump_type = 0;
 
       // Take steps in parameter space
-      if((Ran2_Parallel(&seeds[j], &states[j]) < 0.5) && (iter > NPAST)) 
+      if((get_uniform_random_value(random_generators_for_chains[j]) < 0.5) && (iter > NPAST))
       {
         jump = 1;
       }
@@ -195,7 +198,8 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
       //gaussian jumps
       if(jump == 0)
       {
-        Gaussian_Proposal(x[chain_id], &seeds[j], sigma, jscale, temp[j], y, &states[j], NPARS);
+        Gaussian_Proposal(x[chain_id], &seeds[j], sigma, jscale, temp[j], y, &states[j], NPARS,
+                          random_generators_for_chains, j);
         jump_type = 1;
       }
 
@@ -209,7 +213,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
         }
 
         Differential_Evolution_Proposal(x[chain_id], &seeds[j], history[j], y, &states[j],
-                                        NPARS, NPAST, GAMMA);
+                                        NPARS, NPAST, GAMMA, random_generators_for_chains, j);
         jump_type = 2;
 
         for (int i=0;i<NPARS;i++) 
@@ -219,7 +223,8 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
 
         if (dx_mag < 1e-6)
         {
-          Gaussian_Proposal(x[chain_id], &seeds[j], sigma, jscale, temp[j], y, &states[j], NPARS);
+          Gaussian_Proposal(x[chain_id], &seeds[j], sigma, jscale, temp[j], y, &states[j], NPARS,
+                            random_generators_for_chains, j);
           jump_type = 1;
         }
       }
@@ -276,7 +281,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
                             NSECTORS, y, magdata, magerr, gmag_flag, color_flag, secular_drift_flag);
 
     /* evaluate new solution */
-    alpha = Ran2_Parallel(&seeds[j], &states[j]);
+    alpha = get_uniform_random_value(random_generators_for_chains[j]);
 
     //Hasting's ratio
     double H = exp((logLy-logLx[chain_id])/temp[j] + (logPy-logPx[chain_id]));
@@ -385,13 +390,15 @@ int main(int argc, char* argv[])
 /*
   Some useful functions for the lightcurve calculation
 */
-void Uniform_Proposal(double *x, long *seed, bounds limits[], double *y, RNG_Vars *state, const int NPARS)
+void Uniform_Proposal(double *x, long *seed, bounds limits[], double *y, RNG_Vars *state, const int NPARS,
+                      RandomGenerator** random_generators_for_chains, int chain_number)
 {
   int n;
   double dx[NPARS];
   
   //compute size of jumps
-  for(n=0; n<NPARS; n++) dx[n] = Ran2_Parallel(seed, state)*(limits[n].hi - limits[n].lo);
+  for(n=0; n<NPARS; n++) dx[n] = get_uniform_random_value(random_generators_for_chains[chain_number])*(
+          limits[n].hi - limits[n].lo);
   
   //uniform draw on prior range
   for(n=0; n<NPARS; n++) y[n] = limits[n].lo + dx[n];
@@ -399,7 +406,7 @@ void Uniform_Proposal(double *x, long *seed, bounds limits[], double *y, RNG_Var
 }
 
 void Gaussian_Proposal(double *x, long *seed, double *sigma, double scale, double temp, 
-  double *y, RNG_Vars *state, const int NPARS)
+  double *y, RNG_Vars *state, const int NPARS, RandomGenerator** random_generators_for_chains, int chain_number)
 {
   int n;
   double gamma;
@@ -410,7 +417,8 @@ void Gaussian_Proposal(double *x, long *seed, double *sigma, double scale, doubl
   sqtemp = sqrt(temp);
   
   //compute size of jumps
-  for(n=0; n<NPARS; n++) dx[n] = Gasdev2_Parallel(seed, state)*sigma[n]*sqtemp*scale;
+  for(n=0; n<NPARS; n++) dx[n] = get_normal_random_value(random_generators_for_chains[chain_number]
+          )*sigma[n]*sqtemp*scale;
   
   //jump in parameter directions scaled by dx
   for(n=0; n<NPARS; n++) 
@@ -421,8 +429,9 @@ void Gaussian_Proposal(double *x, long *seed, double *sigma, double scale, doubl
 }
 
 
-void Differential_Evolution_Proposal(double *x, long *seed, double **history, double *y, RNG_Vars *state, 
-  const int NPARS, const int NPAST, const double GAMMA)
+void Differential_Evolution_Proposal(double *x, long *seed, double **history, double *y, RNG_Vars *state,
+                                     const int NPARS, const int NPAST, const double GAMMA,
+                                     RandomGenerator** random_generators_for_chains, int chain_number)
 {
   int n;
   int a;
@@ -432,11 +441,11 @@ void Differential_Evolution_Proposal(double *x, long *seed, double **history, do
   double epsilon[NPARS];
   
   //choose two samples from chain history
-  a = Ran2_Parallel(seed, state) * NPAST;
+  a = get_uniform_random_value(random_generators_for_chains[chain_number]) * NPAST;
   b = a;
   while(b==a) 
   {
-    b = Ran2_Parallel(seed, state)*NPAST;
+    b = get_uniform_random_value(random_generators_for_chains[chain_number]) * NPAST;
   }
 
   //compute vector connecting two samples
@@ -448,11 +457,11 @@ void Differential_Evolution_Proposal(double *x, long *seed, double **history, do
   //Blocks?
   
   //90% of jumps use Gaussian distribution for jump size
-  if(Ran2_Parallel(seed, state) < 0.9) 
+  if(get_uniform_random_value(random_generators_for_chains[chain_number]) < 0.9)
   {
     for(n=0; n<NPARS; n++) 
     {
-      dx[n] *= Gasdev2_Parallel(seed, state) * GAMMA;
+      dx[n] *= get_normal_random_value(random_generators_for_chains[chain_number]) * GAMMA;
     }
   }
 
@@ -497,7 +506,7 @@ void Ptmcmc(int *index, double temp[], double logL[], double logP[], const int N
 	 */ 
 	
   /* Siddhant: b can be -1, gives seg fault, put bounds on b*/
-	b = (int) (get_random_value(random_generator)*(double)(NCHAINS-1));
+	b = (int) (get_uniform_random_value(random_generator) * (double)(NCHAINS - 1));
 	a = b + 1;
 	
 	olda = index[a];
@@ -512,7 +521,7 @@ void Ptmcmc(int *index, double temp[], double logL[], double logP[], const int N
   //dlogP = logP1 - logP2;
 	H  = (heat2 - heat1)/(heat2*heat1);
 	alpha = exp(dlogL*H);
-	beta  = get_random_value(random_generator);
+	beta  = get_uniform_random_value(random_generator);
 	if(alpha >= beta)
 	{
 		index[a] = oldb;
