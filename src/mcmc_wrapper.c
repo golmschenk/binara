@@ -436,7 +436,7 @@ void Differential_Evolution_Proposal(double *x, long *seed, double **history, do
   int n;
   int a;
   int b;
-  int c;
+  int c = 0;
   double dx[NPARS];
   double epsilon[NPARS];
   
