@@ -3,13 +3,14 @@ project(binara)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Find dependencies.
 find_package(OpenMP REQUIRED)
-if(POLICY CMP0167)
+if(POLICY CMP0167)  # Enforce using modern Boost finding method.
     cmake_policy(SET CMP0167 NEW)
 endif()
 find_package(Boost COMPONENTS REQUIRED random)
 
-
+# Prepare shared source files.
 set(BINARA_EXE_AND_EXT_SHARED_SOURCES
         src/mcmc_wrapper.c
         src/likelihood.c
@@ -22,13 +23,14 @@ set(BINARA_EXE_AND_EXT_SHARED_SOURCES
         src/random_generator.h
 )
 
+# Build executable.
 add_executable(binara_exe
         ${BINARA_EXE_AND_EXT_SHARED_SOURCES}
 )
 target_link_libraries(binara_exe PRIVATE OpenMP::OpenMP_CXX)
 target_link_libraries(binara_exe PRIVATE Boost::random)
 
-# When installed as a Python package (via pip using scikit-build-core).
+# Build Python library when installed as a Python package (via pip using scikit-build-core).
 if(SKBUILD)
     find_package(Python 3.8
             REQUIRED COMPONENTS Interpreter Development.Module
