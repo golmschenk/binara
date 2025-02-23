@@ -4,18 +4,10 @@ project(binara)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(OpenMP REQUIRED)
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
 find_package(Boost COMPONENTS REQUIRED random)
-#if(NOT Boost_FOUND)
-#    set(Boost_ENABLE_ALL OFF)
-#    set(Boost_ENABLE_RANDOM ON)
-#    include(FetchContent)
-#    FetchContent_Declare(
-#            Boost
-#            GIT_REPOSITORY https://github.com/boostorg/boost.git
-#            GIT_TAG boost-1.83.0
-#    )
-#    FetchContent_MakeAvailable(Boost)
-#endif()
 
 
 set(BINARA_EXE_AND_EXT_SHARED_SOURCES
