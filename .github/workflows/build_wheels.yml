@@ -14,13 +14,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: install_dependencies_windows
+      - name: install_dependencies_windows0
+        if: ${{ runner.os == 'Windows' }}
+        run: >
+          choco install mingw
+
+      - name: install_dependencies_windows1
         if: ${{ runner.os == 'Windows' }}
         uses: MarkusJx/install-boost@v2.5.0
         id: install-boost
         with:
-          boost_version: 1.87.0
-          platform_version: windows-2022
+          boost_version: 1.78.0
           toolset: mingw
 
       - name: install_dependencies_macos
