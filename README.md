@@ -7,7 +7,6 @@ The lightcurve model includes flux contributions from Doppler beaming, reflectio
 
 ### MCMC Fitting
 
-
 ## Table of Contents
 
 - [Installation](#installation)

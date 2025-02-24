@@ -1,4 +1,4 @@
-# Guide for Fortran developers
+# Guide for developers
 
 ## Setting up the developer environment
 
@@ -41,7 +41,7 @@ Then build with:
 cmake --build build --config Debug
 ```
 
-Just the second build command is required for subsequent builds, and will only rebuild changed components.
+This will produce the `binara_exe` executable inside the `build` directory. Just the second build command is required for subsequent builds, and will only rebuild changed components.
 
 To clean the build, simply delete the build directory:
 

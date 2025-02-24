@@ -31,11 +31,21 @@ jobs:
           echo "PATH=$(brew --prefix)/bin:$(brew --prefix)/opt/llvm/bin:$(brew --prefix)/opt/libomp/bin:$PATH" >> $GITHUB_ENV
           echo "CC=$(brew --prefix)/opt/llvm/bin/clang" >> $GITHUB_ENV
           echo "CXX=$(brew --prefix)/opt/llvm/bin/clang++" >> $GITHUB_ENV
+          
+      - name: install_dependencies_windows
+        if: runner.os == 'Windows'
+        uses: awvwgk/setup-fortran@main
+        id: install_dependencies_windows
+        with:
+          compiler: gcc
+          version: 11
 
       - name: build_wheels
         uses: pypa/cibuildwheel@v2.22.0
         env:
-          CIBW_ENVIRONMENT_WINDOWS: BOOST_ROOT='${{ steps.install-boost.outputs.BOOST_ROOT }}'
+          CIBW_ENVIRONMENT_WINDOWS: >
+            BOOST_ROOT='${{ steps.install-boost.outputs.BOOST_ROOT }}'
+            CMAKE_GENERATOR="MinGW Makefiles"
           CIBW_ENVIRONMENT_MACOS: >
             BOOST_ROOT='${{ steps.install-boost.outputs.BOOST_ROOT }}'
             MACOSX_DEPLOYMENT_TARGET=14.7
