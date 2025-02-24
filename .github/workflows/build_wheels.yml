@@ -16,7 +16,7 @@ jobs:
 
       - name: install_dependencies_windows
         if: ${{ runner.os == 'Windows' }}
-        uses: MarkusJx/install-boost@v2.1.0
+        uses: MarkusJx/install-boost@v2.5.0
         id: install-boost
         with:
           boost_version: 1.78.0
