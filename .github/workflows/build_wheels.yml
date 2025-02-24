@@ -14,12 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install boost
-        if: ${{ runner.os == 'Windows' || runner.os == 'macOS' }}
+      - name: install_dependencies_windows
+        if: ${{ runner.os == 'Windows' }}
         uses: MarkusJx/install-boost@v2.1.0
         id: install-boost
         with:
           boost_version: 1.87.0
+          toolset: mingw
 
       - name: install_dependencies_macos
         if: runner.os == 'MacOS'
@@ -32,25 +33,21 @@ jobs:
           echo "CC=$(brew --prefix)/opt/llvm/bin/clang" >> $GITHUB_ENV
           echo "CXX=$(brew --prefix)/opt/llvm/bin/clang++" >> $GITHUB_ENV
           
-      - name: install_dependencies_windows
-        if: runner.os == 'Windows'
-        uses: awvwgk/setup-fortran@main
-        id: install_dependencies_windows
-        with:
-          compiler: gcc
-          version: 11
-
-      - name: install_dependencies_windows2
-        if: runner.os == 'Windows'
-        id: install_dependencies_windows2
-        run: echo 'CMAKE_GENERATOR="MinGW Makefiles"' >> $GITHUB_ENV
+#      - name: install_dependencies_windows
+#        if: runner.os == 'Windows'
+#        uses: awvwgk/setup-fortran@main
+#        id: install_dependencies_windows
+#        with:
+#          compiler: gcc
+#          version: 11
 
       - name: build_wheels
         uses: pypa/cibuildwheel@v2.22.0
         env:
-          CIBW_ENVIRONMENT_WINDOWS: BOOST_ROOT='${{ steps.install-boost.outputs.BOOST_ROOT }}'
-          CIBW_ENVIRONMENT_MACOS: >
+          CIBW_ENVIRONMENT_WINDOWS: >
             BOOST_ROOT='${{ steps.install-boost.outputs.BOOST_ROOT }}'
+            CMAKE_GENERATOR="MinGW Makefiles"
+          CIBW_ENVIRONMENT_MACOS: >
             MACOSX_DEPLOYMENT_TARGET=14.7
           CIBW_BEFORE_BUILD_LINUX: echo $BOOST_ROOT
           CIBW_BEFORE_ALL_LINUX: >
