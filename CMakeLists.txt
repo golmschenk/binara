@@ -5,9 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Find dependencies.
 find_package(OpenMP REQUIRED)
-if(POLICY CMP0167)  # Enforce using modern Boost finding method.
-    cmake_policy(SET CMP0167 NEW)
-endif()
+#if(POLICY CMP0167)  # Enforce using modern Boost finding method.
+#    cmake_policy(SET CMP0167 NEW)
+#endif()
 find_package(Boost COMPONENTS REQUIRED random)
 
 # Prepare shared source files.
