@@ -25,6 +25,3 @@ test-requires = "pytest"
 
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.14"
-
-[tool.cibuildwheel.linux]
-repair-wheel-command = "LD_LIBRARY_PATH=/boost/lib:${LD_LIBRARY_PATH} auditwheel repair -w {dest_dir} {wheel}"
