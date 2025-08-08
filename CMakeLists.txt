@@ -5,9 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Find dependencies.
 find_package(OpenMP REQUIRED)
-#if(POLICY CMP0167)  # Enforce using modern Boost finding method.
-#    cmake_policy(SET CMP0167 NEW)
-#endif()
+if(POLICY CMP0167)  # Enforce using modern Boost finding method.
+    cmake_policy(SET CMP0167 NEW)
+endif()
 find_package(Boost COMPONENTS REQUIRED random)
 
 # Prepare shared source files.
@@ -27,7 +27,7 @@ set(BINARA_EXE_AND_EXT_SHARED_SOURCES
 add_executable(binara_exe
         ${BINARA_EXE_AND_EXT_SHARED_SOURCES}
 )
-target_link_libraries(binara_exe PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(binara_exe PRIVATE OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
 target_link_libraries(binara_exe PRIVATE Boost::random)
 
 # Build Python library when installed as a Python package (via pip using scikit-build-core).
@@ -45,7 +45,7 @@ if(SKBUILD)
             ${BINARA_EXE_AND_EXT_SHARED_SOURCES}
     )
 
-    target_link_libraries(binara_ext PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries(binara_ext PRIVATE OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
     target_link_libraries(binara_ext PRIVATE Boost::random)
     target_compile_definitions(binara_ext PRIVATE IS_PYTHON_LIBRARY_BUILD)
     nanobind_add_stub(
