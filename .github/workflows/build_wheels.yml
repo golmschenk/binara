@@ -31,8 +31,6 @@ jobs:
           echo "PATH=$(brew --prefix)/bin:$(brew --prefix)/opt/llvm/bin:$(brew --prefix)/opt/libomp/bin:$PATH" >> $GITHUB_ENV
           echo "CC=$(brew --prefix)/opt/llvm/bin/clang" >> $GITHUB_ENV
           echo "CXX=$(brew --prefix)/opt/llvm/bin/clang++" >> $GITHUB_ENV
-          echo "LDFLAGS=\"-L/opt/homebrew/opt/llvm/lib\"" >> $GITHUB_ENV
-          echo "CPPFLAGS=\"-I/opt/homebrew/opt/llvm/include\"" >> $GITHUB_ENV
 
       - name: build_wheels
         uses: pypa/cibuildwheel@v2.22.0
@@ -41,6 +39,7 @@ jobs:
             BOOST_ROOT='${{ steps.install-boost.outputs.BOOST_ROOT }}'
           CIBW_ENVIRONMENT_MACOS: >
             MACOSX_DEPLOYMENT_TARGET=14.7
+            LDFLAGS="-L$(brew --prefix llvm)/lib/c++"
           CIBW_BEFORE_BUILD_LINUX: echo $BOOST_ROOT
           CIBW_BEFORE_ALL_LINUX: >
             yum install -y wget &&
