@@ -24,7 +24,7 @@ jobs:
       - name: install_dependencies_macos
         if: runner.os == 'MacOS'
         run: |
-          brew install llvm
+          brew install llvm@20  # TODO: Remove when the linker issue is resolved (https://github.com/llvm/llvm-project/issues/155531).
           brew install libomp
           brew install boost
           # Add Homebrew paths to path.
