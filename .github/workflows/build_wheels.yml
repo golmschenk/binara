@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: install_dependencies_windows1
+      - name: install_dependencies_windows
         if: ${{ runner.os == 'Windows' }}
         uses: MarkusJx/install-boost@v2.5.1
         id: install-boost
