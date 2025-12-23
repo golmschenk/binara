@@ -700,7 +700,7 @@ void Log_Data(char *chainname, char *outname, char *parname, int iter, double **
     }
 
     Calculate_Lightcurve(sector_phase, Npoints_in_sector, sector_params, 
-                        sector_template);
+                         sector_template);
     for (int i=0; i<Npoints_in_sector; i++)
     {
       fprintf(out_file,"%12.5e %12.5e %12.5e %12.5e\n",sector_phase[i],sector_flux[i],sector_template[i],

@@ -609,8 +609,8 @@ Parameters:
   template:   Array to store the lightcurve
 
 */
-void Calculate_Lightcurve(double *times, long Nt, double *pars,
-      double *template_)
+void Calculate_Lightcurve(double *times, size_t Nt, double *pars,
+                          double *template_)
 {
   // Extract the paramters
   double logM1 = pars[0];
@@ -955,7 +955,7 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
 
     // Now calculate the lightcurve for the sector
     Calculate_Lightcurve(sector_phase, Npoints_in_sector, sector_params, 
-                        sector_template);
+                         sector_template);
 
     // Finally compute the chi_squared
     double chi2_local = 0.;
