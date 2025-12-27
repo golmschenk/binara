@@ -722,12 +722,12 @@ void Calculate_Lightcurve(double *times, size_t Nt, double *pars,
     Amag2[i] = Norm2 * (1 + beam2 + ellip2 + ref2);
 
     // Eclipse contribution (delta F = F * (ecl area / tot area))
-    //double area = Eclipse_Area(R1, R2, d_arr[i]);
-    //if (Z2_arr[i] > Z1_arr[i]) Amag2[i] -= area * Norm2 / (PI * SQR(R2));
-    //else if (Z2_arr[i] < Z1_arr[i]) Amag1[i] -= area * Norm1 / (PI * SQR(R1));
+    double area = Eclipse_Area(R1, R2, d_arr[i]);
+    if (Z2_arr[i] > Z1_arr[i]) Amag2[i] -= area * Norm2 / (PI * SQR(R2));
+    else if (Z2_arr[i] < Z1_arr[i]) Amag1[i] -= area * Norm1 / (PI * SQR(R1));
 
     // Eclipse with Limb-Darkening
-    double area;
+    // double area;
 
 	  //if (Z2_arr[i] < Z1_arr[i])
     //{
