@@ -10,6 +10,12 @@ if(POLICY CMP0167)  # Enforce using modern Boost finding method.
 endif()
 find_package(Boost COMPONENTS REQUIRED random)
 
+if(NOT WIN32)
+    set(MATH_LIBRARY m)
+else()
+    set(MATH_LIBRARY "")
+endif()
+
 # Prepare shared source files.
 set(BINARA_EXE_AND_EXT_SHARED_SOURCES
         src/mcmc_wrapper.c
@@ -30,15 +36,14 @@ add_executable(grapher_exe
         src/util.h
         src/finding_model_lc_fluxes.c
 )
-target_link_libraries(grapher_exe PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
-target_link_libraries(grapher_exe PUBLIC m)
+target_link_libraries(grapher_exe PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C ${MATH_LIBRARY})
 target_link_libraries(grapher_exe PRIVATE Boost::random)
 
 # Build executable.
 add_executable(binara_exe
         ${BINARA_EXE_AND_EXT_SHARED_SOURCES}
 )
-target_link_libraries(binara_exe PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
+target_link_libraries(binara_exe PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C ${MATH_LIBRARY})
 target_link_libraries(binara_exe PRIVATE Boost::random)
 
 # Build Python library when installed as a Python package (via pip using scikit-build-core).
@@ -56,7 +61,7 @@ if(SKBUILD)
             ${BINARA_EXE_AND_EXT_SHARED_SOURCES}
     )
 
-    target_link_libraries(binara_ext PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
+    target_link_libraries(binara_ext PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C ${MATH_LIBRARY})
     target_link_libraries(binara_ext PRIVATE Boost::random)
     target_compile_definitions(binara_ext PRIVATE IS_PYTHON_LIBRARY_BUILD)
     nanobind_add_stub(
