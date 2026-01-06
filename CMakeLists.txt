@@ -28,7 +28,7 @@ add_executable(grapher_exe
         src/likelihood.h
         src/util.c
         src/util.h
-        src/grapher.c
+        src/finding_model_lc_fluxes.c
 )
 target_link_libraries(grapher_exe PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
 target_link_libraries(grapher_exe PUBLIC m)
