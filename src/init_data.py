@@ -162,7 +162,7 @@ def set_mcmc_pars(TIC: int, sector: int = -1, secular_drift_sources = False):
                 "noise resc": [0., 0.027522]
                 }
     # Set the number of chains and the temperature difference between the chains
-    NITER = 1000000
+    NITER = 3000000
     NCHAINS = 50
     NPAST = 500
     dTemp = 1.4
@@ -308,7 +308,10 @@ def main():
     #for sector in sectors_tic_336538437: write_mcmc_data(178739533, sector=sector, run_id=1)
     # for tic in paper_drifting: write_mcmc_data(tic, sector=-1, run_id=10, secular_drift_sources=True)
 
-    write_mcmc_data(220052771, sector=6, run_id=1, secular_drift_sources=False)
+    #write_mcmc_data(220052771, sector=6, run_id=1, secular_drift_sources=False)
+    #write_mcmc_data(80384846, sector=37, run_id=1, secular_drift_sources=False)
+    write_mcmc_data(110602878, sector=34, run_id= 1, secular_drift_sources = False)
+
     #write_mcmc_data(240918551, sector=-1, run_id=2)
     #write_mcmc_data(240918551, sector=17, run_id=2)
     #write_mcmc_data(240918551, sector=18, run_id=2)

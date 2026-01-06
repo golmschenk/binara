@@ -1,4 +1,6 @@
 #ifndef _MCMC_WRAPPER_H_
+#define _GNU_SOURCE
+
   #define _MCMC_WRAPPER_H_
   #include "likelihood.h"
   #include <omp.h>

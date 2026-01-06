@@ -8,7 +8,7 @@ Once you have a light curve from the neural network, you find the period, fold i
 based on that period, and then save that information to a .txt file. The file will 
 contain a header with the number of data points in the .txt file and the period of 
 the light curve in days. Then, the file will have 3 columns that contain the
-**phase-folded time, normalized flux, and flux error.**
+**phase-folded time, flux, and flux error.**
 
   - Saving the folded light curve:
 
@@ -77,4 +77,8 @@ unique to each sector, and util.c shows that npars_unique is a constant set to 7
 This is a combined file created by the write_mcmc_data function. The header is 6 values that are the
 number of iterations, the number of chains run in that iteration, number of 
 parameters, number of sectors, NPAST which is the number of past samples to remember per chain so 
-the code learns from where it has already been, and dTemp, which is the difference in temperature between the chains. 
+the code learns from where it has already been, and dTemp, which is the difference in temperature between the chains.
+This is followed by 22 lines that represent the same 22 parameters discussed in the pars
+section in the same order. Each line has 7 entries, if it is a varying parameter, the initial value, 
+the lower bound, the upper bound, the boundary condition, step size, and then the last two entries are the
+means and sigmas of each parameter. This is then followed by the number of lines in 

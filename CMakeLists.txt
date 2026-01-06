@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.16)
 project(binara)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -23,11 +23,22 @@ set(BINARA_EXE_AND_EXT_SHARED_SOURCES
         src/random_generator.h
 )
 
+add_executable(grapher_exe
+        src/likelihood.c
+        src/likelihood.h
+        src/util.c
+        src/util.h
+        src/grapher.c
+)
+target_link_libraries(grapher_exe PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
+target_link_libraries(grapher_exe PUBLIC m)
+target_link_libraries(grapher_exe PRIVATE Boost::random)
+
 # Build executable.
 add_executable(binara_exe
         ${BINARA_EXE_AND_EXT_SHARED_SOURCES}
 )
-target_link_libraries(binara_exe PRIVATE OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
+target_link_libraries(binara_exe PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
 target_link_libraries(binara_exe PRIVATE Boost::random)
 
 # Build Python library when installed as a Python package (via pip using scikit-build-core).
@@ -45,7 +56,7 @@ if(SKBUILD)
             ${BINARA_EXE_AND_EXT_SHARED_SOURCES}
     )
 
-    target_link_libraries(binara_ext PRIVATE OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
+    target_link_libraries(binara_ext PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_C)
     target_link_libraries(binara_ext PRIVATE Boost::random)
     target_compile_definitions(binara_ext PRIVATE IS_PYTHON_LIBRARY_BUILD)
     nanobind_add_stub(

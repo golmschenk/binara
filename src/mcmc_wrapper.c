@@ -2,7 +2,9 @@
 #include "python_interrupt_handling.h"
 #include "random_generator.h"
 
-
+#include <stdio.h>
+#include <omp.h>
+#include <sched.h>
 
 void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_flag, const int color_flag, 
               const int secular_drift_flag)
@@ -155,7 +157,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
     check_for_and_handle_python_interrupt();
     int k = iter - (iter / NPAST) * NPAST;
 
-    //#pragma omp parallel for schedule(static) if(ENABLE_OPENMP)
+    #pragma omp parallel for schedule(static) if(ENABLE_OPENMP)
     for(int j=0; j<NCHAINS; j++) 
     {
       // Test parameters
@@ -359,6 +361,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
 
 int main(int argc, char* argv[])
 {
+  printf("Start.");
   const int tic = atoi(argv[1]);//461541766;
   const int sector = atoi(argv[2]);//-1;
   const int run_id = atoi(argv[3]);//1;

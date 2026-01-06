@@ -591,3 +591,4 @@ cython_debug/
 
 # Project specific.
 !tests/**/*.out
+data
