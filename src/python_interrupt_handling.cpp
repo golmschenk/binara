@@ -1,5 +1,12 @@
 #ifdef IS_PYTHON_LIBRARY_BUILD
-#include <Python.h>
+#include <corecrt.h>
+#ifdef _DEBUG
+  #undef _DEBUG
+  #include <Python.h>
+  #define _DEBUG
+#else
+  #include <Python.h>
+#endif
 #include "python_interrupt_handling.h"
 #include <nanobind/nanobind.h>
 
