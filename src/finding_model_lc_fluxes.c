@@ -7,7 +7,8 @@
 void Calculate_Lightcurve(double *times, long Nt, double *pars, double *template_);
 
 int main(void) {
-    FILE *fp = fopen("data/pars/pars.110602878_sector_34_gmag_OMP_1.out", "r");
+    //FILE *fp = fopen("data/pars/pars.110602878_sector_34_gmag_OMP_1.out", "r");
+    FILE *fp = fopen("data/pars/temp.out", "r");
     double pars[21];
     for (int i = 0; i < 21; i++) {
         fscanf(fp, "%lf", &pars[i]);
