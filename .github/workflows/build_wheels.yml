@@ -9,23 +9,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: install_dependencies_windows0
+      - name: install_dependencies_windows
         if: ${{ runner.os == 'Windows' }}
-        run: >
-          choco install mingw
-
-      - name: install_dependencies_windows1
-        if: ${{ runner.os == 'Windows' }}
-        uses: MarkusJx/install-boost@v2.5.0
+        uses: MarkusJx/install-boost@v2.5.1
         id: install-boost
         with:
-          boost_version: 1.78.0
-          toolset: mingw
+          boost_version: '1.89.0'
 
       - name: install_dependencies_macos
         if: runner.os == 'MacOS'
@@ -43,9 +37,9 @@ jobs:
         env:
           CIBW_ENVIRONMENT_WINDOWS: >
             BOOST_ROOT='${{ steps.install-boost.outputs.BOOST_ROOT }}'
-            CMAKE_GENERATOR="MinGW Makefiles"
           CIBW_ENVIRONMENT_MACOS: >
-            MACOSX_DEPLOYMENT_TARGET=14.7
+            MACOSX_DEPLOYMENT_TARGET=15.0
+            LDFLAGS="-L$(brew --prefix llvm)/lib/c++"
           CIBW_BEFORE_BUILD_LINUX: echo $BOOST_ROOT
           CIBW_BEFORE_ALL_LINUX: >
             yum install -y wget &&

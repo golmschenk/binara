@@ -57,25 +57,25 @@ void QuickSort(double arr[], int low, int high)
 */
 void Remove_Median(double *arr, long begin, long end, double med_2)
 {
-  // First sort the orignal array
-  double sorted_arr[end-begin];
-
   long Nt = end - begin;
+  // First sort the orignal array
+  double *sorted_arr = malloc(Nt * sizeof(double));
 
   for (int i=0; i<Nt; i++) {sorted_arr[i] = arr[begin + i];}
 
-  QuickSort(sorted_arr, 0, Nt - 1); 
+  QuickSort(sorted_arr, 0, Nt - 1);
 
   int mid;
   if (Nt % 2 == 0) mid = (int) Nt/2;
   else mid = (int) Nt/2 + 1;
-  
+
 
   double median = sorted_arr[mid];
   //printf("Sorted median is %f\n",median);
   //printf("Relative error is %f \n", (median-med_2)/median);
 
   for (int i=0; i<Nt; i++) {arr[begin + i] -= median;}
+  free(sorted_arr);
   return;
 }
 
@@ -609,8 +609,8 @@ Parameters:
   template:   Array to store the lightcurve
 
 */
-void Calculate_Lightcurve(double *times, long Nt, double *pars,
-      double *template_)
+void Calculate_Lightcurve(double *times, size_t Nt, double *pars,
+                          double *template_)
 {
   // Extract the paramters
   double logM1 = pars[0];
@@ -662,7 +662,7 @@ void Calculate_Lightcurve(double *times, long Nt, double *pars,
 
   double traj_pars[7] = {M1_cgs, M2_cgs, P_cgs, e, inc, omega0, T0_cgs};
 
-  // Compute effective temperature and radius 
+  // Compute effective temperature and radius
   double R1 = 0., R2 = 0., Teff1 = 0., Teff2 = 0.;
 
   Calc_Radii_And_Teffs(pars, &R1, &R2, &Teff1, &Teff2);
@@ -673,7 +673,7 @@ void Calculate_Lightcurve(double *times, long Nt, double *pars,
   Norm2 = SQR(R2) * QUAD(Teff2) / (SQR(R1) * QUAD(Teff1) + SQR(R2) * QUAD(Teff2));
 
   // Set alpha_beam
-  if (compute_alpha_beam == 1) 
+  if (compute_alpha_beam == 1)
   {
       alpha_beam_1 = Get_Alpha_Beam(log10(Teff1));
       alpha_beam_2 = Get_Alpha_Beam(log10(Teff2));
@@ -688,18 +688,18 @@ void Calculate_Lightcurve(double *times, long Nt, double *pars,
   double ar = a / RSUN;
 
   // Fluxes from the stars stored here
-  double Amag1[Nt];
-  double Amag2[Nt];
+  double *Amag1 = malloc(Nt * sizeof(double));
+  double *Amag2 = malloc(Nt * sizeof(double));
 
   // Positon arrays for the stars (cylindrical separaion)
-  double d_arr[Nt];
-  double Z1_arr[Nt];
-  double Z2_arr[Nt];
+  double *d_arr = malloc(Nt * sizeof(double));
+  double *Z1_arr = malloc(Nt * sizeof(double));
+  double *Z2_arr = malloc(Nt * sizeof(double));
 
   // Radial separation
-  double r_arr[Nt];
+  double *r_arr = malloc(Nt * sizeof(double));
   // True anomaly
-  double nu_arr[Nt];
+  double *nu_arr = malloc(Nt * sizeof(double));
 
   Trajectory(times, traj_pars, d_arr, Z1_arr, Z2_arr, r_arr, nu_arr, Nt);
 
@@ -760,6 +760,14 @@ void Calculate_Lightcurve(double *times, long Nt, double *pars,
     template_[i] += 1;
     template_[i] = (1*blending + template_[i]*(1 - blending)) * flux_tune;
   }
+
+  free(Amag1);
+  free(Amag2);
+  free(d_arr);
+  free(Z1_arr);
+  free(Z2_arr);
+  free(r_arr);
+  free(nu_arr);
   return;
 }
 
@@ -879,7 +887,7 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
 
   for (int sector_number = 0; sector_number < NSECTORS; sector_number++)
   {
-    double sector_params[npars_sector];
+    double *sector_params = malloc(npars_sector * sizeof(double));
     // Assign common parameters to each sector
     for (int index=0; index<npars_common; index++)
     {
@@ -889,8 +897,8 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
     // Now assign the unique parameters
     for (int index=0; index<npars_unique; index++)
     {
-      sector_params[npars_common + index] = all_parameters[npars_common + 
-                                            npars_unique * sector_number + 
+      sector_params[npars_common + index] = all_parameters[npars_common +
+                                            npars_unique * sector_number +
                                             index];
     }
     // Re-arrange the ordering of the variables if the secular drift flag is on
@@ -898,7 +906,7 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
     {
       // Current order: logM1, logM2, logP, sigma_r1, sigma_r2, mu_1, tau_1, mu_2, tau_2, alpha_ref_1, alpha_ref_2
       //                alpha_t1, alpha_t2, (e, i, omega, t0, blending, flux_tune, noise_resc)_j
-      double __temp[npars_sector];
+      double *__temp = malloc(npars_sector * sizeof(double));
       __temp[0] = sector_params[0];       __temp[1] = sector_params[1];      __temp[2] = sector_params[2];
       __temp[3] = sector_params[15];      __temp[4] = sector_params[16];     __temp[5] = sector_params[17];
       __temp[6] = sector_params[18];      __temp[7] = sector_params[3];      __temp[8] = sector_params[4];
@@ -914,6 +922,7 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
         //printf("Sector parameters original %d: %f \n", ii, sector_params[ii]);
         sector_params[ii] = __temp[ii];
       }
+      free(__temp);
       for (int ii=0; ii<npars_sector; ii++)
       {
         //printf("Sector parameters changed %d: %f \n", ii, sector_params[ii]);
@@ -922,10 +931,10 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
 
     // Similary make sector-specific phase, flux and error arrays
     const int Npoints_in_sector = points_per_sector[sector_number];
-    double sector_flux[Npoints_in_sector];
-    double sector_phase[Npoints_in_sector];
-    double sector_uncetainties[Npoints_in_sector];
-    double sector_template[Npoints_in_sector];
+    double *sector_flux = malloc(Npoints_in_sector * sizeof(double));
+    double *sector_phase = malloc(Npoints_in_sector * sizeof(double));
+    double *sector_uncetainties = malloc(Npoints_in_sector * sizeof(double));
+    double *sector_template = malloc(Npoints_in_sector * sizeof(double));
 
     for (int index=0; index < Npoints_in_sector; index++)
     {
@@ -946,7 +955,7 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
 
     // Now calculate the lightcurve for the sector
     Calculate_Lightcurve(sector_phase, Npoints_in_sector, sector_params, 
-                        sector_template);
+                         sector_template);
 
     // Finally compute the chi_squared
     double chi2_local = 0.;
@@ -984,10 +993,15 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
         }
       }
     }
-    
+
       skip_samples += points_per_sector[sector_number];
       logL_net += (-chi2_local/2.0 + logL_resc_term);
 
+      free(sector_params);
+      free(sector_flux);
+      free(sector_phase);
+      free(sector_uncetainties);
+      free(sector_template);
 
   }
 
@@ -1068,7 +1082,7 @@ void Calculate_Lightcurve_Components(double *times, long Nt, double *pars,
 
   double traj_pars[7] = {M1_cgs, M2_cgs, P_cgs, e, inc, omega0, T0_cgs};
 
-  // Compute effective temperature and radius 
+  // Compute effective temperature and radius
   double R1 = 0., R2 = 0., Teff1 = 0., Teff2 = 0.;
 
   Calc_Radii_And_Teffs(pars, &R1, &R2, &Teff1, &Teff2);
@@ -1079,7 +1093,7 @@ void Calculate_Lightcurve_Components(double *times, long Nt, double *pars,
   Norm2 = SQR(R2) * QUAD(Teff2) / (SQR(R1) * QUAD(Teff1) + SQR(R2) * QUAD(Teff2));
 
   // Set alpha_beam
-  if (compute_alpha_beam == 1) 
+  if (compute_alpha_beam == 1)
   {
       alpha_beam_1 = Get_Alpha_Beam(log10(Teff1));
       alpha_beam_2 = Get_Alpha_Beam(log10(Teff2));
@@ -1094,18 +1108,18 @@ void Calculate_Lightcurve_Components(double *times, long Nt, double *pars,
   double ar = a / RSUN;
 
   // Fluxes from the stars stored here
-  double Amag1[Nt];
-  double Amag2[Nt];
+  double *Amag1 = malloc(Nt * sizeof(double));
+  double *Amag2 = malloc(Nt * sizeof(double));
 
   // Positon arrays for the stars (cylindrical separaion)
-  double d_arr[Nt];
-  double Z1_arr[Nt];
-  double Z2_arr[Nt];
+  double *d_arr = malloc(Nt * sizeof(double));
+  double *Z1_arr = malloc(Nt * sizeof(double));
+  double *Z2_arr = malloc(Nt * sizeof(double));
 
   // Radial separation
-  double r_arr[Nt];
+  double *r_arr = malloc(Nt * sizeof(double));
   // True anomaly
-  double nu_arr[Nt];
+  double *nu_arr = malloc(Nt * sizeof(double));
 
   Trajectory(times, traj_pars, d_arr, Z1_arr, Z2_arr, r_arr, nu_arr, Nt);
 
@@ -1190,5 +1204,13 @@ void Calculate_Lightcurve_Components(double *times, long Nt, double *pars,
     //template[i] += 1;
     //template[i] = (1*blending + template[i]*(1 - blending)) * flux_tune;
   }
+
+  free(Amag1);
+  free(Amag2);
+  free(d_arr);
+  free(Z1_arr);
+  free(Z2_arr);
+  free(r_arr);
+  free(nu_arr);
   return;
 }

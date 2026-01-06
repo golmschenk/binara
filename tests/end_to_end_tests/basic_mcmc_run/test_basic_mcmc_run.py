@@ -15,7 +15,10 @@ def test_can_run_mcmc():
             shutil.rmtree(data_directory)
         shutil.copytree(working_directory.joinpath('template_starting_data_directory'), data_directory)
         binara.enforce_expected_data_directory_tree()
-        binara.run_mcmc(220052771, 6, 1, 0, 0, 0)
+        binara.internal_run_mcmc(220052771, 6, 1, 0, 0, 0)
         verify_directories_match(data_directory, working_directory.joinpath('expected_resulting_data_directory'))
         if data_directory.exists():
-            shutil.rmtree(data_directory)
+            try:
+                shutil.rmtree(data_directory)
+            except PermissionError:  # In the Windows tests, this can sporadically fail, but it's fine to skip it.
+                pass
