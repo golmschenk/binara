@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <omp.h>
-#include <sched.h>
+
 
 void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_flag, const int color_flag, 
               const int secular_drift_flag)
@@ -157,9 +157,13 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
   {
     check_for_and_handle_python_interrupt();
     int k = iter - (iter / NPAST) * NPAST;
+    int j;
 
-    #pragma omp parallel for schedule(static) if(ENABLE_OPENMP)
-    for(int j=0; j<NCHAINS; j++) 
+    #if ENABLE_OPENMP
+    #pragma omp parallel for schedule(static)
+    #endif
+
+    for(j=0; j<NCHAINS; j++)
     {
       // Test parameters
       double *y = malloc(NPARS * sizeof(double));
