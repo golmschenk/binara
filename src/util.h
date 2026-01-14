@@ -1,5 +1,5 @@
-#ifndef _UTIL_H_
-  #define _UTIL_H_ (1)
+#ifndef _UTILHD_342
+  #define _UTILHD_342 (1)
   #include "stdio.h"
   #include "stdlib.h"
   #include "math.h"
@@ -68,7 +68,7 @@
   typedef struct RNG_Vars RNG_Vars;
 
   // Key variables that will be used in the MCMC_WRAPPER
-  extern int points_per_sector[MAXSECTORS];
+  int points_per_sector[MAXSECTORS];
 
   void Set_Limits_Intialize_Proposals(bounds limited[], bounds limits[], 
     gauss_bounds gauss_pars[], double *sigma, int NSECTORS);

@@ -1,7 +1,11 @@
-#ifndef _LIKELIHOOD_H_
-  #define _LIKELIHOOD_H_
+#ifndef _LHLHD_3141_
+  #define _LHLHD_3141_ (1)
   #include "math.h"
-  #include "util.h"
+
+  #ifndef _UTILHD_342
+    #include "util.h"
+  #endif
+
 
   extern const int npars_common, npars_unique;
   void Trajectory(double *times, double *traj_pars, double *d_arr, 

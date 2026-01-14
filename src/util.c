@@ -138,7 +138,7 @@ int Load_MCMC_Constants(const int tic, const int sector, const int run_id, const
                       int *py_niter, int *py_nchains, int *py_npars, 
                       int *py_nsectors, int *py_npast, double *py_dtemp, long int *buffer_size)
 {
-  char path[1024] = "data/py_initialize/";;
+  char path[1024] = "/home/siddhant/scratch/HB_MCMC/data/py_initialize/";;
   Get_Datafile_Name(tic, sector, run_id, secular_drift_flag, path);
   printf("Reading constants \n");
 
@@ -182,7 +182,7 @@ int Load_MCMC_Parameter_Info(const int tic, const int sector, const int run_id, 
                       bounds *limits, bounds *limited, gauss_bounds *gauss_pars, 
                       double *X_init, double *sigma)
 {
-  char path[1024] = "data/py_initialize/";;
+  char path[1024] = "/home/siddhant/scratch/HB_MCMC/data/py_initialize/";;
   Get_Datafile_Name(tic, sector, run_id, secular_drift_flag, path);
   printf("Reading parameter information \n");
 
@@ -225,7 +225,7 @@ int Load_MCMC_Sector_Points(const int tic, const int sector, const int run_id, c
                       long int *py_npoints)
 {
 
- char path[1024] = "data/py_initialize/";;
+ char path[1024] = "/home/siddhant/scratch/HB_MCMC/data/py_initialize/";;
   Get_Datafile_Name(tic, sector, run_id, secular_drift_flag, path);
   printf("Reading sector information \n");
 
@@ -262,7 +262,7 @@ int Load_MCMC_Data_Arrays(const int tic, const int sector, const int run_id, con
                       const int NPOINTS, long int *buffer_size, double *times, double *fluxes,
                       double *errors, double *magdata, double *magerr)
 {
-  char path[1024] = "data/py_initialize/";;
+  char path[1024] = "/home/siddhant/scratch/HB_MCMC/data/py_initialize/";;
   Get_Datafile_Name(tic, sector, run_id, secular_drift_flag, path);
   printf("Reading lightcurve and color data \n");
 

@@ -1,7 +1,11 @@
-#ifndef _MCMC_WRAPPER_H_
-  #define _MCMC_WRAPPER_H_
+#ifndef MCMCHD_2141
+  #define MCMCHD_214 (1)
   #include "likelihood.h"
   #include "omp.h"
+
+  #ifndef _UTILHD_342
+    #include "util.h"
+  #endif
 
   #define ENABLE_OPENMP (1)
   
