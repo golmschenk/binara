@@ -1,14 +1,69 @@
+from pathlib import Path
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 # taking the original TESS light curve, folding it, and then binning it using
 # 150 bins and using the original easier method for the error bars
 
-input_file  = "data/lightcurves/original_folded_lightcurves/110602878_sector_34.txt"
-output_file = "data/lightcurves/original_folded_lightcurves/110602878_sector_34_binned150.txt"
+
+def fold_and_bin(
+        input_file: str,
+        output_file: str,
+):
+    input_file = Path(input_file)
+    output_file = Path(output_file)
+    nbins = 150
+
+    with open(input_file, "r") as f:
+        Nt, P_days = f.readline().split()
+        Nt = int(Nt)
+        P_days = float(P_days)
+
+    data = np.loadtxt(input_file, skiprows=1)
+    time = data[:, 0]
+    flux = data[:, 1]
+
+    median_flux = np.median(flux)
+    flux_norm = flux / median_flux
+
+    t0 = time.min()
+    phase = ((time - t0) / P_days) % 1.0
+
+    bin_edges = np.linspace(0.0, 1.0, nbins + 1)
+    bin_centers_phase = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+
+    binned_phase_days = bin_centers_phase * P_days
+    binned_flux_mean= np.full(nbins, np.nan)
+    binned_flux_err = np.full(nbins, np.nan)
+
+    for i in range(nbins):
+        in_bin = (phase >= bin_edges[i]) & (phase < bin_edges[i+1])
+        idx = np.where(in_bin)[0]
+
+        n = len(idx)
+        if n == 0:
+            continue
+
+        flux_bin = flux_norm[idx]
+        binned_flux_mean[i] = np.mean(flux_bin)
+
+        if n >= 2:
+            binned_flux_err[i] = np.std(flux_bin, ddof=1)
+        else:
+            binned_flux_err[i] = 0.0
+
+    with open(output_file, "w") as f:
+        f.write(f"{nbins} {P_days:.10f}\n")
+        for t_bin, f_mean, f_err in zip(binned_phase_days, binned_flux_mean, binned_flux_err):
+            f.write(f"{t_bin:.10f} {f_mean:.10f} {f_err:.10f}\n")
+
+    print(f"Wrote folded + binned LC to: {output_file}")
+
 
 nbins = 150
-
+input_file  = "data/lightcurves/original_folded_lightcurves/118305806_sector_37.txt"
+output_file = "data/lightcurves/original_folded_lightcurves/118305806_sector_37_binned150.txt"
 with open(input_file, "r") as f:
     Nt, P_days = f.readline().split()
     Nt = int(Nt)
@@ -17,7 +72,7 @@ with open(input_file, "r") as f:
 data = np.loadtxt(input_file, skiprows=1)
 time = data[:, 0]
 flux = data[:, 1]
-err  = data[:, 2]
+err = data[:, 2]
 
 median_flux = np.median(flux)
 flux_norm = flux / median_flux
@@ -48,8 +103,7 @@ for i in range(nbins):
     else:
         binned_flux_err[i] = 0.0
 
-print(f"Requested nbins = {nbins}, writing exactly {nbins} bins.")
-print(f"Empty bins = {np.sum(np.isnan(binned_flux_mean))}")
+print(f"Writing {nbins} bins.")
 
 with open(output_file, "w") as f:
     f.write(f"{nbins} {P_days:.10f}\n")
@@ -57,7 +111,6 @@ with open(output_file, "w") as f:
         f.write(f"{t_bin:.10f} {f_mean:.10f} {f_err:.10f}\n")
 
 print(f"Wrote folded + binned LC to: {output_file}")
-
 
 plt.figure(figsize=(10, 5))
 

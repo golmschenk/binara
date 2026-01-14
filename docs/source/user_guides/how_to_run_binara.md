@@ -81,4 +81,59 @@ the code learns from where it has already been, and dTemp, which is the differen
 This is followed by 22 lines that represent the same 22 parameters discussed in the pars
 section in the same order. Each line has 7 entries, if it is a varying parameter, the initial value, 
 the lower bound, the upper bound, the boundary condition, step size, and then the last two entries are the
-means and sigmas of each parameter. This is then followed by the number of lines in 
+means and sigmas of each parameter.
+
+## Running binara
+First, run
+```python
+from init_data import load_tic_data
+import numpy as np
+
+t, y, yerr, *_ = load_tic_data(TIC_ID, sector= sector)
+
+csv_file = "TESS_data_for_TIC_ID_sector.txt"
+np.savetxt(
+    csv_file,
+    np.column_stack((t, y, yerr)),
+    delimiter=" ",
+    header="time_days flux flux_err"
+)
+```
+Take the file it outputs, and put it in the 
+directory binara/data/original_folded_lightcurves. At the top of the file, erase the headers,
+and put the number of lines in the file as the first number, and then the period of the light curve
+as the second number. The format of the file should look like this:
+
+<table>
+  <tr><td>3358</td><td>5.3475350000</td></tr>
+  <tr><td>2229.11878707</td><td>14310.743164</td><td>7.433327</td></tr>
+</table>
+and it will continue the data for 3358 lines.
+Then, the data must be folded and binned. Run the folding_and_binning.py script found
+in the src folder. This will create a folded version of the lightcurve that has 150 bins.
+The output for the data points of the binned version will be saved in data/original_folded_lightcurves/TIC_ID_sector_binned150.txt.
+After that, upload the file and make sure it is in zaratan. You can now run the job using the
+sbatch job_script.sh command.
+
+job_script.sh:
+```bash
+#!/bin/bash
+#SBATCH --job-name="binara job"
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=10
+#SBATCH --mem=40G
+#SBATCH --time=0-03:00:00
+
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+
+echo "Job shell script started."
+srun cmake-build-release-zaratan1/binara_exe TIC_ID sector 1 0 0 0
+```
+The job usually takes a couple of hours (~7) to complete. When it is done,
+the output files will be the chains file, the mcmc_lightcurves file, and the pars file.
+To see how good the fit is, you can run finding_model_lc_fluxes.c which will create a model_folded.csv
+by calling the function Calculate_Lightcurve with the parameters from the pars file.
+Then, run plotting_obs_vs_model_fluxes.py to see the observed vs. the model light curves in the same
+plot. If you want to see the mode lightcurve alone, you can run example_lightcurve.py, when you
+pass in the parameters and the 150 phases, and run the program.

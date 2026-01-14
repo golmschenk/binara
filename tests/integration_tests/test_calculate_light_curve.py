@@ -1,12 +1,13 @@
 import numpy as np
 from bokeh.io import show
 from bokeh.plotting import figure
+import matplotlib.pyplot as plt
 
 from binara import internal_calculate_light_curve
 
 
 def test_calculate_light_curve():
-    # Parameters and sample light curve taken from a run of Gioula Kalapotharakos for TIC ID 110602878 sector 34.
+    # Parameters and sample light curve taken from a run of Gioula Kalapotharakou for TIC ID 110602878 sector 34.
     model_parameters = np.array([
         0.385886490907, 0.0664402461459, 0.728154, 0.398693367346, 0.0250731943869, -2.58470776396, 0.986066718147,
         -0.0495279552116, -1.02057860777, 0.368375172834, 0.275439743308, 0.0288241638398, 0.374759311771,
@@ -54,6 +55,31 @@ def test_calculate_light_curve():
         0.9998203422, 0.9934302556, 0.9689839406, 0.9423796188, 0.9365054447, 0.9365176270, 0.9365308114, 0.9427980235,
         0.9695035218, 0.9937965994, 0.9999534436, 0.9999749530, 0.9999991653, 1.0000266040], dtype=np.float64)
     model_fluxes = internal_calculate_light_curve(model_phases, model_parameters)
+
+    # err = np.full_like(expected_model_fluxes, 0.001)
+    # data = np.column_stack((model_phases, expected_model_fluxes, err))
+    # np.savetxt(
+    #     "model_lightcurve.txt",
+    #     data,
+    #     fmt="%.10f",
+    #     comments=""
+    # )
+    # plt.errorbar(
+    #     model_phases,
+    #     expected_model_fluxes,
+    #     yerr=err,
+    #     fmt=".",
+    #     markersize=4,
+    #     capsize=2,
+    #     alpha=0.7
+    # )
+    # plt.xlabel("Phase")
+    # plt.ylabel("Flux")
+    # plt.title("Model Light Curve with Errors")
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.show()
+
     figure_ = figure()
     figure_.scatter(x=model_phases, y=model_fluxes)
     show(figure_)
