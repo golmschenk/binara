@@ -10,4 +10,4 @@
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 echo "Job shell script started."
-srun cmake-build-release-zaratan1/binara_exe 110602878 34 1 0 0 0
+srun cmake-build-release-zaratan1/binara_exe 110602878 34 1 1 0 0
