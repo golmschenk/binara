@@ -1,5 +1,7 @@
 #ifdef IS_PYTHON_LIBRARY_BUILD
-#include <corecrt.h>
+#if defined (__WIN32__)
+  #include <corecrt.h>
+#endif
 #ifdef _DEBUG
   #undef _DEBUG
   #include <Python.h>
