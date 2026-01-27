@@ -421,7 +421,7 @@ void Differential_Evolution_Proposal(double *x, long *seed, double **history, do
   int n;
   int a;
   int b;
-  int c;
+  double c = Ran2_Parallel(seed, state);
   double dx[NPARS];
   double epsilon[NPARS];
   
