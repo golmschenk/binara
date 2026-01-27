@@ -1,7 +1,7 @@
 #include "util.h"
 
-const int npars_common = 15;//19;
-const int npars_unique = 7;//3;
+const int npars_common = 19;
+const int npars_unique = 3;
 
 
 double Ran2_Parallel(long *idum, RNG_Vars* state)
