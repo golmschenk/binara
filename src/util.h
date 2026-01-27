@@ -67,9 +67,6 @@
   typedef struct gauss_bounds gauss_bounds;
   typedef struct RNG_Vars RNG_Vars;
 
-  // Key variables that will be used in the MCMC_WRAPPER
-  extern int points_per_sector[MAXSECTORS];
-
   void Set_Limits_Intialize_Proposals(bounds limited[], bounds limits[], 
     gauss_bounds gauss_pars[], double *sigma, int NSECTORS);
   double Ran2_Parallel(long *idum, RNG_Vars* state);
