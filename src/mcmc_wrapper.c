@@ -429,7 +429,7 @@ void Differential_Evolution_Proposal(double *x, double **history, double *y, con
   int n;
   int a;
   int b;
-  int c = 0;
+  double c = get_normal_random_value(random_generators_for_chains[chain_number]);
   double *dx = malloc(NPARS * sizeof(double));
   double *epsilon = malloc(NPARS * sizeof(double));
 
