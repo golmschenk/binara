@@ -59,7 +59,7 @@ void Remove_Median(double *arr, long begin, long end, double med_2)
 {
   long Nt = end - begin;
   // First sort the orignal array
-  double *sorted_arr = malloc(Nt * sizeof(double));
+  double *sorted_arr = new double[Nt];
 
   for (int i=0; i<Nt; i++) {sorted_arr[i] = arr[begin + i];}
 
@@ -688,18 +688,18 @@ void Calculate_Lightcurve(double *times, size_t Nt, double *pars,
   double ar = a / RSUN;
 
   // Fluxes from the stars stored here
-  double *Amag1 = malloc(Nt * sizeof(double));
-  double *Amag2 = malloc(Nt * sizeof(double));
+  double *Amag1 = new double[Nt];
+  double *Amag2 = new double[Nt];
 
   // Positon arrays for the stars (cylindrical separaion)
-  double *d_arr = malloc(Nt * sizeof(double));
-  double *Z1_arr = malloc(Nt * sizeof(double));
-  double *Z2_arr = malloc(Nt * sizeof(double));
+  double *d_arr = new double[Nt];
+  double *Z1_arr = new double[Nt];
+  double *Z2_arr = new double[Nt];
 
   // Radial separation
-  double *r_arr = malloc(Nt * sizeof(double));
+  double *r_arr = new double[Nt];
   // True anomaly
-  double *nu_arr = malloc(Nt * sizeof(double));
+  double *nu_arr = new double[Nt];
 
   Trajectory(times, traj_pars, d_arr, Z1_arr, Z2_arr, r_arr, nu_arr, Nt);
 
@@ -887,7 +887,7 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
 
   for (int sector_number = 0; sector_number < NSECTORS; sector_number++)
   {
-    double *sector_params = malloc(npars_sector * sizeof(double));
+    double *sector_params = new double[npars_sector];
     // Assign common parameters to each sector
     for (int index=0; index<npars_common; index++)
     {
@@ -906,7 +906,7 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
     {
       // Current order: logM1, logM2, logP, sigma_r1, sigma_r2, mu_1, tau_1, mu_2, tau_2, alpha_ref_1, alpha_ref_2
       //                alpha_t1, alpha_t2, (e, i, omega, t0, blending, flux_tune, noise_resc)_j
-      double *__temp = malloc(npars_sector * sizeof(double));
+      double *__temp = new double[npars_sector];
       __temp[0] = sector_params[0];       __temp[1] = sector_params[1];      __temp[2] = sector_params[2];
       __temp[3] = sector_params[15];      __temp[4] = sector_params[16];     __temp[5] = sector_params[17];
       __temp[6] = sector_params[18];      __temp[7] = sector_params[3];      __temp[8] = sector_params[4];
@@ -931,10 +931,10 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
 
     // Similary make sector-specific phase, flux and error arrays
     const int Npoints_in_sector = points_per_sector[sector_number];
-    double *sector_flux = malloc(Npoints_in_sector * sizeof(double));
-    double *sector_phase = malloc(Npoints_in_sector * sizeof(double));
-    double *sector_uncetainties = malloc(Npoints_in_sector * sizeof(double));
-    double *sector_template = malloc(Npoints_in_sector * sizeof(double));
+    double *sector_flux = new double[Npoints_in_sector];
+    double *sector_phase = new double[Npoints_in_sector];
+    double *sector_uncetainties = new double[Npoints_in_sector];
+    double *sector_template = new double[Npoints_in_sector];
 
     for (int index=0; index < Npoints_in_sector; index++)
     {
@@ -1108,18 +1108,18 @@ void Calculate_Lightcurve_Components(double *times, long Nt, double *pars,
   double ar = a / RSUN;
 
   // Fluxes from the stars stored here
-  double *Amag1 = malloc(Nt * sizeof(double));
-  double *Amag2 = malloc(Nt * sizeof(double));
+  double *Amag1 = new double[Nt];
+  double *Amag2 = new double[Nt];
 
   // Positon arrays for the stars (cylindrical separaion)
-  double *d_arr = malloc(Nt * sizeof(double));
-  double *Z1_arr = malloc(Nt * sizeof(double));
-  double *Z2_arr = malloc(Nt * sizeof(double));
+  double *d_arr = new double[Nt];
+  double *Z1_arr = new double[Nt];
+  double *Z2_arr = new double[Nt];
 
   // Radial separation
-  double *r_arr = malloc(Nt * sizeof(double));
+  double *r_arr = new double[Nt];
   // True anomaly
-  double *nu_arr = malloc(Nt * sizeof(double));
+  double *nu_arr = new double[Nt];
 
   Trajectory(times, traj_pars, d_arr, Z1_arr, Z2_arr, r_arr, nu_arr, Nt);
 

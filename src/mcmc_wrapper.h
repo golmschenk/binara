@@ -1,7 +1,7 @@
 #ifndef _MCMC_WRAPPER_H_
   #define _MCMC_WRAPPER_H_
   #include "likelihood.h"
-  #include <omp.h>
+#include <omp.h>
   #include "random_generator.h"
 
   #define ENABLE_OPENMP (1)

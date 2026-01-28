@@ -1,6 +1,11 @@
 #include "mcmc_wrapper.h"
+
+#include <fstream>
+#include <iosfwd>
+
 #include "python_interrupt_handling.h"
 #include "random_generator.h"
+#include "configuration.h"
 
 
 
@@ -25,25 +30,25 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
   const int NPAST = py_npast;
   const double dtemp = py_dtemp;
 
-  bounds *limits = malloc(NPARS * sizeof(bounds));
-  bounds *limited = malloc(NPARS * sizeof(bounds));
-  gauss_bounds *gauss_pars = malloc(NPARS * sizeof(gauss_bounds));
-  double *xmap = malloc(NPARS * sizeof(double));
-  double *sigma = malloc(NPARS * sizeof(double));
+  bounds *limits = new bounds[NPARS];
+  bounds *limited = new bounds[NPARS];
+  gauss_bounds *gauss_pars = new gauss_bounds[NPARS];
+  double *xmap = new double[NPARS];
+  double *sigma = new double[NPARS];
 
   Load_MCMC_Parameter_Info(tic, sector, run_id, secular_drift_flag, NPARS, &buffer_size,
                           limits, limited, gauss_pars, xmap, sigma);
 
 
-  long int *points_per_sector = malloc(NSECTORS * sizeof(long int));
+  long int *points_per_sector = new long int[NSECTORS];
   long int py_npoints;
   Load_MCMC_Sector_Points(tic, sector, run_id, secular_drift_flag, NSECTORS, &buffer_size,
                           points_per_sector, &py_npoints);
 
   const int NPOINTS = py_npoints;
-  double *times = malloc(NPOINTS * sizeof(double));
-  double *fluxes = malloc(NPOINTS * sizeof(double));
-  double *errors = malloc(NPOINTS * sizeof(double));
+  double *times = new double[NPOINTS];
+  double *fluxes = new double[NPOINTS];
+  double *errors = new double[NPOINTS];
   double magdata[5], magerr[4];
 
   Load_MCMC_Data_Arrays(tic, sector, run_id, secular_drift_flag, NPOINTS, &buffer_size,
@@ -53,9 +58,9 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
 
   const double GAMMA = 2.388/sqrt(2.* (double)NPARS);
 
-  double *logLx = malloc(NCHAINS * sizeof(double));
-  double *logPx = malloc(NCHAINS * sizeof(double));
-  double *temp = malloc(NCHAINS * sizeof(double));
+  double *logLx = new double[NCHAINS];
+  double *logPx = new double[NCHAINS];
+  double *temp = new double[NCHAINS];
 
   double logLy;
   double logPy;
@@ -63,17 +68,17 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
   double **x;
   double ***history;
 
-  int *DEtrial_arr = malloc(NCHAINS * sizeof(int));
-  int *acc_arr = malloc(NCHAINS * sizeof(int));
-  int *DEacc_arr = malloc(NCHAINS * sizeof(int));
+  int *DEtrial_arr = new int[NCHAINS];
+  int *acc_arr = new int[NCHAINS];
+  int *DEacc_arr = new int[NCHAINS];
 
   int acc = 0;
   int atrial = 0;
   int DEtrial = 0;
   int DEacc = 0;
-  int *index = malloc(NCHAINS * sizeof(int));
+  int *index = new int[NCHAINS];
 
-  RandomGenerator **random_generators_for_chains = malloc(NCHAINS * sizeof(RandomGenerator *));
+  RandomGenerator **random_generators_for_chains = new RandomGenerator*[NCHAINS];
   const int NTHREADS = (int)(NCHAINS / 2);
 
   char chainname[512] = "";
@@ -160,7 +165,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
     for(int j=0; j<NCHAINS; j++)
     {
       // Test parameters
-      double *y = malloc(NPARS * sizeof(double));
+      double *y = new double[NPARS];
 
       // Random number
       double alpha = get_uniform_random_value(random_generators_for_chains[j]);
@@ -168,7 +173,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
       // Jump scale and steps
       double jscale = pow(10.,-6.+6.*alpha);
 
-      double *dx = malloc(NPARS * sizeof(double));
+      double *dx = new double[NPARS];
       double dx_mag = 0;
       int jump = 0;
       int chain_id = index[j];
@@ -402,7 +407,7 @@ void Gaussian_Proposal(double *x, double *sigma, double scale, double temp, doub
   int n;
   double gamma;
   double sqtemp;
-  double *dx = malloc(NPARS * sizeof(double));
+  double *dx = new double[NPARS];
 
   //scale jumps by temperature
   sqtemp = sqrt(temp);
@@ -430,8 +435,8 @@ void Differential_Evolution_Proposal(double *x, double **history, double *y, con
   int a;
   int b;
   double c = get_normal_random_value(random_generators_for_chains[chain_number]);
-  double *dx = malloc(NPARS * sizeof(double));
-  double *epsilon = malloc(NPARS * sizeof(double));
+  double *dx = new double[NPARS];
+  double *epsilon = new double[NPARS];
 
   //choose two samples from chain history
   a = get_uniform_random_value(random_generators_for_chains[chain_number]) * NPAST;
@@ -592,16 +597,13 @@ void Make_Files(const int tic, const int sector, const int run_id, const int gma
   printf("outfile: %s\n", outname);
   printf("parfile: %s\n", parname);
 
-  FILE *chain_file, *out_file;
   if (!exists(chainname))
   {
     printf("Old chain file not found, creating new file \n");
-    chain_file = fopen(chainname, "w");
-    fclose(chain_file);
+    std::ofstream chain_file(chainname);
   }
 
-  out_file = fopen(outname, "w");
-  fclose(out_file);
+  std::ofstream out_file(outname);
   return;
 }
 
@@ -648,7 +650,7 @@ void Log_Data(char *chainname, char *outname, char *parname, int iter, double **
 
   // Print the lighcurve for each sector
   const int npars_sector = npars_common + npars_unique;
-  double *sector_params = malloc(npars_sector * sizeof(double));
+  double *sector_params = new double[npars_sector];
   int skip_samples = 0;
 
   for (int i=0; i<npars_common; i++)
@@ -668,7 +670,7 @@ void Log_Data(char *chainname, char *outname, char *parname, int iter, double **
 
     if (secular_drift_flag == 1)
     {
-      double *__temp = malloc(npars_sector * sizeof(double));
+      double *__temp = new double[npars_sector];
       // Current order: logM1, logM2, logP, sigma_r1, sigma_r2, mu_1, tau_1, mu_2, tau_2, alpha_ref_1, alpha_ref_2
       //                alpha_t1, alpha_t2, (e, i, omega, t0, blending, flux_tune, noise_resc)_j
       __temp[0] = sector_params[0];       __temp[1] = sector_params[1];      __temp[2] = sector_params[2];
@@ -687,10 +689,10 @@ void Log_Data(char *chainname, char *outname, char *parname, int iter, double **
     }
 
     const int Npoints_in_sector = points_per_sector[sector_number];
-    double *sector_flux = malloc(Npoints_in_sector * sizeof(double));
-    double *sector_phase = malloc(Npoints_in_sector * sizeof(double));
-    double *sector_uncetainties = malloc(Npoints_in_sector * sizeof(double));
-    double *sector_template = malloc(Npoints_in_sector * sizeof(double));
+    double *sector_flux = new double[Npoints_in_sector];
+    double *sector_phase = new double[Npoints_in_sector];
+    double *sector_uncetainties = new double[Npoints_in_sector];
+    double *sector_template = new double[Npoints_in_sector];
 
     for (int index=0; index < Npoints_in_sector; index++)
     {

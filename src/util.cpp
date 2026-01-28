@@ -4,8 +4,8 @@
 #include "stdio.h"
 #include "util.h"
 
-const int npars_common = 19;
-const int npars_unique = 3;
+extern const int npars_common = 19;
+extern const int npars_unique = 3;
 
 
 const double PI = 3.14159265358979323846;
