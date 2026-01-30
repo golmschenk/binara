@@ -1,4 +1,3 @@
-
 #include "configuration.h"
 
 #include <iostream>
@@ -8,6 +7,8 @@
 
 namespace
 {
+    Configuration* configuration_instance = nullptr;
+
     const std::unordered_set<std::string> allowed_paths = {
         "output.prefix_session_directory_with_datetime",
     };
@@ -17,7 +18,7 @@ namespace
         for (const auto& [key, node] : table)
         {
             toml::path subpath;
-            if (path.str() != "")
+            if (!path.str().empty())
             {
                 subpath = toml::path(std::string(path.str()) + "." + std::string(key.str()));
             }
@@ -34,7 +35,8 @@ namespace
             {
                 if (!allowed_paths.count(subpath.str()))
                 {
-                    std::cerr << "Unexpected configuration key: '" << subpath.str() << "'\n";
+                    std::cerr << "Unexpected configuration option in `" << subpath.str() <<
+                        "` file: `" << subpath.str() << "`. Halting program.\n";
                     exit(100);
                 }
             }
@@ -65,8 +67,24 @@ bool Configuration::prefix_session_directory_with_datetime() const
     return prefix_session_directory_with_datetime_;
 }
 
-Configuration get_configuration()
+void initialize_configuration()
 {
-    static Configuration configuration;
-    return configuration;
+    if (configuration_instance != nullptr)
+    {
+        std::cerr << "Configuration already initialized. Halting program.\n";
+        exit(101);
+    }
+
+    configuration_instance = new Configuration();
+}
+
+Configuration& get_configuration()
+{
+    if (configuration_instance == nullptr)
+    {
+        std::cerr << "Configuration not initialized. Call initialize_configuration first. Halting program.\n";
+        exit(102);
+    }
+
+    return *configuration_instance;
 }

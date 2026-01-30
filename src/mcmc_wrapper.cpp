@@ -396,6 +396,8 @@ int main(int argc, char* argv[])
   const int color_flag = atoi(argv[5]);
   const int secular_drift_flag = atoi(argv[6]);
 
+  initialize_configuration();
+
   Run_MCMC(tic, sector, run_id, gmag_flag, color_flag, secular_drift_flag);
   return 0;
 }

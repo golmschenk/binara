@@ -1,19 +1,19 @@
-
 #pragma once
 
-#ifdef __cplusplus
+#include <filesystem>
+
 class Configuration
 {
-private:
-    bool prefix_session_directory_with_datetime_;
-
-    Configuration();
-
 public:
     [[nodiscard]] bool prefix_session_directory_with_datetime() const;
+    [[nodiscard]] std::filesystem::path session_directory() const;
 
-    friend Configuration get_configuration();
+private:
+    Configuration();
+    bool prefix_session_directory_with_datetime_;
+
+    friend void initialize_configuration();
 };
 
-Configuration get_configuration();
-#endif
+void initialize_configuration();
+Configuration& get_configuration();
