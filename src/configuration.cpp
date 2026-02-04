@@ -60,11 +60,18 @@ Configuration::Configuration()
         "output.prefix_session_directory_with_datetime").value_or(true);
     std::cout << "prefix_session_directory_with_datetime = " << std::boolalpha <<
         prefix_session_directory_with_datetime_ << std::endl;
+    number_of_threads_ = toml_configuration_table.at_path("system.number_of_threads").value_or(-1);
+    std::cout << "prefix_session_directory_with_datetime = " << number_of_threads_ << std::endl;
 }
 
 bool Configuration::prefix_session_directory_with_datetime() const
 {
     return prefix_session_directory_with_datetime_;
+}
+
+int64_t Configuration::number_of_threads() const
+{
+    return number_of_threads_;
 }
 
 void initialize_configuration()
