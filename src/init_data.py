@@ -6,7 +6,9 @@ import os
 
 import numpy as np
 
-'''
+
+def load_tic_data(TIC: int, sector: int = -1):
+    """
     Parameters:
         TIC: int
         sector: int (default = -1)
@@ -22,10 +24,7 @@ import numpy as np
         points_per_sector: np.ndarray (int)
         NSECTORS: int
         Period: float
-'''
-
-
-def load_tic_data(TIC: int, sector: int = -1):
+    """
     # Load lightcurve data
     data_dir = "data/lightcurves/folded_lightcurves/"
     fname = data_dir
@@ -74,17 +73,15 @@ def load_tic_data(TIC: int, sector: int = -1):
     return all_data
 
 
-'''
+def set_mcmc_pars(TIC: int, sector: int = -1, secular_drift_sources=False):
+    """
     Python function to set what parameters to use and what parameters to fix
     Parameters:
             TIC: int
             sector: int (default = -1)
             run_type: str (default = "plain)
             Choose between "plain", "gmag" and "color"
-'''
-
-
-def set_mcmc_pars(TIC: int, sector: int = -1, secular_drift_sources=False):
+    """
     all_data = load_tic_data(TIC=TIC, sector=sector)
     (tdata, ydata, yerrdata, magdata, magerr, points_per_sector,
      nsectors, period) = all_data
@@ -187,13 +184,11 @@ def set_mcmc_pars(TIC: int, sector: int = -1, secular_drift_sources=False):
     return [constants, parameter_info, arrays, misc]
 
 
-'''
+def write_mcmc_data(TIC: int, sector: int = -1, run_id: int = 1, secular_drift_sources=False):
+    """
     Write MCMC data
     Same parameter as set_mcmc_pars
-'''
-
-
-def write_mcmc_data(TIC: int, sector: int = -1, run_id: int = 1, secular_drift_sources=False):
+    """
     if set_mcmc_pars(TIC=TIC, sector=sector) is None:
         return None
     constants, parameter_info, arrays, misc = set_mcmc_pars(
