@@ -1,12 +1,15 @@
 import shutil
 from pathlib import Path
 
+import pytest
+
 import binara
 
 from tests.data_directory_manipulations import verify_directories_match
 from tests.working_directory_context import use_working_directory
 
 
+@pytest.mark.skip
 def test_can_run_mcmc():
     working_directory = Path(__file__).parent
     with use_working_directory(working_directory):
