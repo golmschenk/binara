@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <toml++/impl/table.hpp>
 
 class Configuration
 {
@@ -10,6 +11,7 @@ public:
     [[nodiscard]] std::filesystem::path session_directory() const;
 
 private:
+    [[nodiscard]] int32_t number_of_threads_from_configuration(const toml::table& toml_configuration_table) const;
     Configuration();
     bool prefix_session_directory_with_datetime_;
     int32_t number_of_threads_;

@@ -77,8 +77,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
     int DEacc = 0;
     int* index = new int[NCHAINS];
 
-    RandomGenerator** random_generators_for_chains = new RandomGenerator*[NCHAINS];
-    const int NTHREADS = (int)(NCHAINS / 2);
+    auto** random_generators_for_chains = new RandomGenerator*[NCHAINS];
 
     char chainname[512] = "";
     char outname[512] = "";

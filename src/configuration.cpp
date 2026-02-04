@@ -47,6 +47,27 @@ namespace
     }
 }
 
+int32_t Configuration::number_of_threads_from_configuration(const toml::table& toml_configuration_table) const
+{
+    int32_t number_of_threads = toml_configuration_table.at_path("system.number_of_threads").value_or(0);
+    if (number_of_threads == -1)
+    {
+        number_of_threads = omp_get_num_procs();
+        std::cout << "number_of_threads = " << number_of_threads << " (was 0 in configuration file)" << std::endl;
+    }
+    else if (number_of_threads_ <= 0)
+    {
+        std::cerr << "Configuration option `number_of_threads` set to `" << number_of_threads <<
+            "` but must be positive or -1. Halting program." << std::endl;
+        exit(103);
+    }
+    else
+    {
+        std::cout << "number_of_threads = " << number_of_threads << std::endl;
+    }
+    return number_of_threads;
+}
+
 Configuration::Configuration()
 {
     toml::table toml_configuration_table;
@@ -63,22 +84,7 @@ Configuration::Configuration()
     std::cout << "prefix_session_directory_with_datetime = " << std::boolalpha <<
         prefix_session_directory_with_datetime_ << std::endl;
 
-    number_of_threads_ = toml_configuration_table.at_path("system.number_of_threads").value_or(0);
-    if (number_of_threads_ == -1)
-    {
-        number_of_threads_ = omp_get_num_procs();
-        std::cout << "number_of_threads = " << number_of_threads_ << " (was 0 in configuration file)" << std::endl;
-    }
-    else if (number_of_threads_ <= 0)
-    {
-        std::cerr << "Configuration option `number_of_threads` set to `" << number_of_threads_ <<
-            "` but must be positive or -1. Halting program." << std::endl;
-        exit(103);
-    }
-    else
-    {
-        std::cout << "number_of_threads = " << number_of_threads_ << std::endl;
-    }
+    number_of_threads_ = number_of_threads_from_configuration(toml_configuration_table);
 }
 
 bool Configuration::prefix_session_directory_with_datetime() const
