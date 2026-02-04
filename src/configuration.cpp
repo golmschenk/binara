@@ -49,7 +49,7 @@ namespace
 
 int32_t Configuration::number_of_threads_from_configuration(const toml::table& toml_configuration_table) const
 {
-    int32_t number_of_threads = toml_configuration_table.at_path("system.number_of_threads").value_or(0);
+    int32_t number_of_threads = toml_configuration_table.at_path("system.number_of_threads").value_or(-1);
     if (number_of_threads == -1)
     {
         number_of_threads = omp_get_num_procs();

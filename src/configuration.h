@@ -1,7 +1,7 @@
 #pragma once
 
 #include <filesystem>
-#include <toml++/impl/table.hpp>
+#include "toml++/toml.hpp"
 
 class Configuration
 {
