@@ -6,13 +6,13 @@ class Configuration
 {
 public:
     [[nodiscard]] bool prefix_session_directory_with_datetime() const;
-    int64_t number_of_threads() const;
+    [[nodiscard]] int32_t number_of_threads() const;
     [[nodiscard]] std::filesystem::path session_directory() const;
 
 private:
     Configuration();
     bool prefix_session_directory_with_datetime_;
-    bool number_of_threads_;
+    int32_t number_of_threads_;
 
     friend void initialize_configuration();
 };

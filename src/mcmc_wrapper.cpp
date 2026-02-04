@@ -13,7 +13,8 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
               const int secular_drift_flag)
 {
   check_for_and_handle_python_interrupt();
-  // omp_set_num_threads(10);
+  initialize_configuration();
+  omp_set_num_threads(get_configuration().number_of_threads());
   // Load the MCMC data
   long int buffer_size;
   int py_niter, py_nchains, py_npars, py_nsectors, py_npast;
@@ -161,7 +162,9 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
     check_for_and_handle_python_interrupt();
     int k = iter - (iter / NPAST) * NPAST;
 
-    // #pragma omp parallel for schedule(static) if(ENABLE_OPENMP)
+    #if ENABLE_OPENMP
+    #pragma omp parallel for schedule(static)
+    #endif
     for(int j=0; j<NCHAINS; j++)
     {
       // Test parameters
@@ -395,8 +398,6 @@ int main(int argc, char* argv[])
   const int gmag_flag = atoi(argv[4]);
   const int color_flag = atoi(argv[5]);
   const int secular_drift_flag = atoi(argv[6]);
-
-  initialize_configuration();
 
   Run_MCMC(tic, sector, run_id, gmag_flag, color_flag, secular_drift_flag);
   return 0;
