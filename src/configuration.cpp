@@ -64,15 +64,15 @@ Configuration::Configuration()
         prefix_session_directory_with_datetime_ << std::endl;
 
     number_of_threads_ = toml_configuration_table.at_path("system.number_of_threads").value_or(0);
-    if (number_of_threads_ == 0)
+    if (number_of_threads_ == -1)
     {
         number_of_threads_ = omp_get_num_procs();
         std::cout << "number_of_threads = " << number_of_threads_ << " (was 0 in configuration file)" << std::endl;
     }
-    else if (number_of_threads_ < 0)
+    else if (number_of_threads_ <= 0)
     {
         std::cerr << "Configuration option `number_of_threads` set to `" << number_of_threads_ <<
-                        "` but must be non-negative. Halting program." << std::endl;
+            "` but must be positive or -1. Halting program." << std::endl;
         exit(103);
     }
     else
