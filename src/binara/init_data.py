@@ -3,6 +3,7 @@ Main python script to run the HB MCMC script that calls
 the C MCMC function.
 """
 import os
+from pathlib import Path
 
 import numpy as np
 
@@ -26,11 +27,11 @@ def load_tic_data(tic_id: int, sector: int = -1):
         Period: float
     """
     # Load lightcurve data
-    data_dir = "data/lightcurves/folded_lightcurves/"
-    fname = data_dir
-    fname += "%d_sector_%d.txt" % (tic_id, sector)
-    header = np.genfromtxt(fname, max_rows=1)
-    tdata, ydata, yerrdata = np.genfromtxt(fname, skip_header=1).T
+    data_directory = Path('data')
+    target_directory = data_directory.joinpath(f'tic_id_{tic_id}_sector_{sector}')
+    folded_light_curve_path = target_directory.joinpath('folded_observed_light_curve.txt')
+    header = np.genfromtxt(folded_light_curve_path, max_rows=1)
+    tdata, ydata, yerrdata = np.genfromtxt(folded_light_curve_path, skip_header=1).T
     # process header
     nsectors = 1
     npoints = len(tdata)
@@ -44,24 +45,18 @@ def load_tic_data(tic_id: int, sector: int = -1):
     period = float(header[-1])
     # Load magdata
     magdata, magerr = [], []
-    mag_dir = "data/magnitudes/"
-    fname = mag_dir + "%d.txt" % tic_id
+    magnitudes_path = target_directory.joinpath('magnitudes.txt')
     # Fill empty gmag data
-
-    if os.path.isfile(fname):
-        with open(fname, "r") as f:
-            distance = f.readline().split()[0]
-            magdata.append(float(distance))
-            gmag, gmag_err = f.readline().split()
-            magdata.append(float(gmag))
-            magerr.append(float(gmag_err))
-            for i in range(3):
-                color, color_err = f.readline().split()
-                magdata.append(float(color))
-                magerr.append(float(color_err))
-    else:
-        magdata = [100, 10, 0, 0, 0]
-        magerr = [10000., 10000., 10000., 10000.]
+    with magnitudes_path.open() as magnitudes_file:
+        distance = magnitudes_file.readline().split()[0]
+        magdata.append(float(distance))
+        gmag, gmag_err = magnitudes_file.readline().split()
+        magdata.append(float(gmag))
+        magerr.append(float(gmag_err))
+        for i in range(3):
+            color, color_err = magnitudes_file.readline().split()
+            magdata.append(float(color))
+            magerr.append(float(color_err))
     # Prepare final state
     all_data = [tdata, ydata, yerrdata, magdata, magerr, points_per_sector,
                 nsectors, period]
@@ -189,18 +184,15 @@ def write_mcmc_data(tic_id: int, sector: int = -1, run_id: int = 1, secular_drif
         return None
     constants, parameter_info, arrays, misc = set_mcmc_pars(
         tic_id=tic_id, sector=sector, secular_drift_sources=secular_drift_sources)
-    outdir = "data/py_initialize/"
-    if sector == -1:
-        sector = "all"
-    fname = outdir + "%d_sector_%s_run_%d.txt" % (tic_id, str(sector), run_id)
-    if secular_drift_sources:
-        fname = outdir + "%d_sector_%s_run_%d_drift.txt" % (tic_id, str(sector), run_id)
+    data_directory = Path('data')
+    target_directory = data_directory.joinpath(f'tic_id_{tic_id}_sector_{sector}')
+    py_initialize_path = target_directory.joinpath('py_initialize.txt')
     # .... write the data ...
-    with open(fname, "w") as file:
+    with py_initialize_path.open('w') as py_initialize_file:
         # write the constants (NITER, NCHAINS, NPARS, NSECTORS, NPAST, dTemp)
         for const in constants[:-1]:
-            file.write("%d\t" % const)
-        file.write("%.6f\n" % constants[-1])
+            py_initialize_file.write("%d\t" % const)
+        py_initialize_file.write("%.6f\n" % constants[-1])
         # write the parameter information (repeat the last few pars for multiple sectors)
         PARS_common, PARS_unique = misc
         print(PARS_common, PARS_unique)
@@ -208,33 +200,33 @@ def write_mcmc_data(tic_id: int, sector: int = -1, run_id: int = 1, secular_drif
         for par in PARS_common:
             vals = PARAMETERS[par]
             for val in vals[1:]:
-                file.write("%.6f\t" % float(val))
+                py_initialize_file.write("%.6f\t" % float(val))
             mean, median = GAUSS_PRIORS[par]
-            file.write("%.6f\t%.6f\n" % (mean, median))
+            py_initialize_file.write("%.6f\t%.6f\n" % (mean, median))
         NSECTORS = constants[-3]
         for i in range(NSECTORS):
             for par in PARS_unique:
                 vals = PARAMETERS[par]
                 for val in vals[1:]:
-                    file.write("%.6f\t" % float(val))
+                    py_initialize_file.write("%.6f\t" % float(val))
                 mean, median = GAUSS_PRIORS[par]
-                file.write("%.6f\t%.6f\n" % (mean, median))
+                py_initialize_file.write("%.6f\t%.6f\n" % (mean, median))
         # Now write the points per sector array
         for pps in points_per_sector[:-1]:
-            file.write("%d\t" % pps)
-        file.write("%d\n" % points_per_sector[-1])
+            py_initialize_file.write("%d\t" % pps)
+        py_initialize_file.write("%d\n" % points_per_sector[-1])
         # Write the array information
         tdata, ydata, yerrdata, magdata, magerr = arrays
         for (t, f, err) in zip(tdata, ydata, yerrdata):
-            file.write("%.6f\t%.6f\t%.6f\n" % (t, f, err))
+            py_initialize_file.write("%.6f\t%.6f\t%.6f\n" % (t, f, err))
         # Finally the color data        
         for m in magdata[:-1]:
-            file.write("%.6f\t" % m)
-        file.write("%.6f\n" % magdata[-1])
+            py_initialize_file.write("%.6f\t" % m)
+        py_initialize_file.write("%.6f\n" % magdata[-1])
         for m in magerr[:-1]:
-            file.write("%.6f\t" % m)
-        file.write("%.6f\n" % magerr[-1])
-    print("Successfully written to ", fname)
+            py_initialize_file.write("%.6f\t" % m)
+        py_initialize_file.write("%.6f\n" % magerr[-1])
+    print("Successfully written to ", py_initialize_path)
     return 1
 
 
