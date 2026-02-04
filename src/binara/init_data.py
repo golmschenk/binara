@@ -7,10 +7,10 @@ import os
 import numpy as np
 
 
-def load_tic_data(TIC: int, sector: int = -1):
+def load_tic_data(tic_id: int, sector: int = -1):
     """
     Parameters:
-        TIC: int
+        tic_id: int
         sector: int (default = -1)
     if sector == -1 then load all the sector data
     into one array
@@ -28,7 +28,7 @@ def load_tic_data(TIC: int, sector: int = -1):
     # Load lightcurve data
     data_dir = "data/lightcurves/folded_lightcurves/"
     fname = data_dir
-    fname += "%d_sector_%d.txt" % (TIC, sector)
+    fname += "%d_sector_%d.txt" % (tic_id, sector)
     header = np.genfromtxt(fname, max_rows=1)
     tdata, ydata, yerrdata = np.genfromtxt(fname, skip_header=1).T
     # process header
@@ -45,7 +45,7 @@ def load_tic_data(TIC: int, sector: int = -1):
     # Load magdata
     magdata, magerr = [], []
     mag_dir = "data/magnitudes/"
-    fname = mag_dir + "%d.txt" % TIC
+    fname = mag_dir + "%d.txt" % tic_id
     # Fill empty gmag data
 
     if os.path.isfile(fname):
@@ -69,16 +69,16 @@ def load_tic_data(TIC: int, sector: int = -1):
     return all_data
 
 
-def set_mcmc_pars(TIC: int, sector: int = -1, secular_drift_sources=False):
+def set_mcmc_pars(tic_id: int, sector: int = -1, secular_drift_sources=False):
     """
     Python function to set what parameters to use and what parameters to fix
     Parameters:
-            TIC: int
+            tic_id: int
             sector: int (default = -1)
             run_type: str (default = "plain)
             Choose between "plain", "gmag" and "color"
     """
-    all_data = load_tic_data(TIC=TIC, sector=sector)
+    all_data = load_tic_data(tic_id=tic_id, sector=sector)
     (tdata, ydata, yerrdata, magdata, magerr, points_per_sector,
      nsectors, period) = all_data
     # set the total number of parameters in the mcmc run
@@ -180,21 +180,21 @@ def set_mcmc_pars(TIC: int, sector: int = -1, secular_drift_sources=False):
     return [constants, parameter_info, arrays, misc]
 
 
-def write_mcmc_data(TIC: int, sector: int = -1, run_id: int = 1, secular_drift_sources=False):
+def write_mcmc_data(tic_id: int, sector: int = -1, run_id: int = 1, secular_drift_sources=False):
     """
     Write MCMC data
     Same parameter as set_mcmc_pars
     """
-    if set_mcmc_pars(TIC=TIC, sector=sector) is None:
+    if set_mcmc_pars(tic_id=tic_id, sector=sector) is None:
         return None
     constants, parameter_info, arrays, misc = set_mcmc_pars(
-        TIC=TIC, sector=sector, secular_drift_sources=secular_drift_sources)
+        tic_id=tic_id, sector=sector, secular_drift_sources=secular_drift_sources)
     outdir = "data/py_initialize/"
     if sector == -1:
         sector = "all"
-    fname = outdir + "%d_sector_%s_run_%d.txt" % (TIC, str(sector), run_id)
+    fname = outdir + "%d_sector_%s_run_%d.txt" % (tic_id, str(sector), run_id)
     if secular_drift_sources:
-        fname = outdir + "%d_sector_%s_run_%d_drift.txt" % (TIC, str(sector), run_id)
+        fname = outdir + "%d_sector_%s_run_%d_drift.txt" % (tic_id, str(sector), run_id)
     # .... write the data ...
     with open(fname, "w") as file:
         # write the constants (NITER, NCHAINS, NPARS, NSECTORS, NPAST, dTemp)
