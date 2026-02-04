@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 project(binara)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # Find expected dependencies.
 find_package(OpenMP REQUIRED)
