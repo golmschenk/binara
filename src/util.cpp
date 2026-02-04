@@ -61,19 +61,13 @@ void Get_Datafile_Name(const int tic, const int sector, const int run_id, const 
     char fname[256] = "";
     if (secular_drift_flag == 0)
     {
-        if (sector == -1)
-        {
-            sprintf(fname, "%d_sector_all_run_%d.txt", tic, run_id);
-        }
-        else
-        {
-            sprintf(fname, "%d_sector_%d_run_%d.txt", tic, sector, run_id);
-        }
+
+        sprintf(fname, "%d_sector_%d_run_%d.txt", tic, sector, run_id);
         strcat(path, fname);
     }
     else
     {
-        sprintf(fname, "%d_sector_all_run_%d_drift.txt", tic, run_id);
+        sprintf(fname, "%d_sector_%d_run_%d_drift.txt", tic, sector, run_id);
         strcat(path, fname);
     }
     return;

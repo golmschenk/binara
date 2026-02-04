@@ -28,11 +28,7 @@ def load_tic_data(TIC: int, sector: int = -1):
     # Load lightcurve data
     data_dir = "data/lightcurves/folded_lightcurves/"
     fname = data_dir
-    if sector == -1:
-        fname += "%d_sector_all.txt" % TIC
-        print("Loading all lightcurves of TIC %d" % TIC)
-    else:
-        fname += "%d_sector_%d.txt" % (TIC, sector)
+    fname += "%d_sector_%d.txt" % (TIC, sector)
     header = np.genfromtxt(fname, max_rows=1)
     tdata, ydata, yerrdata = np.genfromtxt(fname, skip_header=1).T
     # process header

@@ -542,14 +542,7 @@ void Make_Files(const int tic, const int sector, const int run_id, const int gma
     sprintf(prefix, "data");
     sprintf(tic_num, "%d", tic);
     sprintf(run_num, "_%d", run_id);
-    if (sector == -1)
-    {
-        sprintf(sec_num, "_sector_all");
-    }
-    else
-    {
-        sprintf(sec_num, "_sector_%d", sector);
-    }
+    sprintf(sec_num, "_sector_%d", sector);
 
     strcat(suffix, tic_num);
     strcat(suffix, sec_num);
