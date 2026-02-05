@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <memory>
+#include <format>
 #include <omp.h>
 #include <unordered_set>
 
@@ -47,7 +48,7 @@ namespace
     }
 }
 
-int32_t Configuration::number_of_threads_from_configuration(const toml::table& toml_configuration_table)
+int32_t Configuration::initialize_number_of_threads(const toml::table& toml_configuration_table)
 {
     int32_t number_of_threads = toml_configuration_table.at_path("system.number_of_threads").value_or(-1);
     if (number_of_threads == -1)
@@ -84,7 +85,7 @@ Configuration::Configuration()
     std::cout << "prefix_session_directory_with_datetime = " << std::boolalpha <<
         prefix_session_directory_with_datetime_ << std::endl;
 
-    number_of_threads_ = number_of_threads_from_configuration(toml_configuration_table);
+    number_of_threads_ = initialize_number_of_threads(toml_configuration_table);
 }
 
 bool Configuration::prefix_session_directory_with_datetime() const

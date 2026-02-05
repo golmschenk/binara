@@ -11,7 +11,9 @@ public:
     [[nodiscard]] std::filesystem::path session_directory() const;
 
 private:
-    [[nodiscard]] static int32_t number_of_threads_from_configuration(const toml::table& toml_configuration_table);
+    [[nodiscard]] static int32_t initialize_number_of_threads(const toml::table& toml_configuration_table);
+    [[nodiscard]] static std::filesystem::path initialize_session_directory(
+        const toml::table& toml_configuration_table);
     Configuration();
     bool prefix_session_directory_with_datetime_;
     int32_t number_of_threads_;
