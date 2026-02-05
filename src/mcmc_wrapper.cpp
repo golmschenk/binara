@@ -13,7 +13,7 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
 {
     check_for_and_handle_python_interrupt();
     initialize_configuration(tic_id, sector);
-    omp_set_num_threads(get_configuration().number_of_threads());
+    omp_set_num_threads(get_configuration().get_number_of_threads());
     // Load the MCMC data
     long int buffer_size;
     int py_niter, py_nchains, py_npars, py_nsectors, py_npast;

@@ -69,13 +69,22 @@ int32_t Configuration::initialize_number_of_threads(const toml::table& toml_conf
     return number_of_threads;
 }
 
-std::filesystem::path Configuration::initialize_session_directory(
+std::filesystem::path Configuration::initialize_session_directory_path(
     const toml::table& toml_configuration_table,
     const int64_t tic_id,
     const int32_t sector)
 {
     std::filesystem::path session_directory{std::format("session/tic_id_{}_sector_{}", tic_id, sector)};
     return session_directory;
+}
+
+std::filesystem::path Configuration::initialize_data_directory_path(
+    const toml::table& toml_configuration_table,
+    const int64_t tic_id,
+    const int32_t sector)
+{
+    std::filesystem::path data_directory{std::format("data/tic_id_{}_sector_{}", tic_id, sector)};
+    return data_directory;
 }
 
 Configuration::Configuration(const int64_t tic_id, const int32_t sector)
@@ -95,7 +104,8 @@ Configuration::Configuration(const int64_t tic_id, const int32_t sector)
         prefix_session_directory_with_datetime_ << std::endl;
 
     number_of_threads_ = initialize_number_of_threads(toml_configuration_table);
-    session_directory_ = initialize_session_directory(toml_configuration_table, tic_id, sector);
+    session_directory_path_ = initialize_session_directory_path(toml_configuration_table, tic_id, sector);
+    data_directory_path_ = initialize_data_directory_path(toml_configuration_table, tic_id, sector);
 }
 
 bool Configuration::prefix_session_directory_with_datetime() const
@@ -103,14 +113,14 @@ bool Configuration::prefix_session_directory_with_datetime() const
     return prefix_session_directory_with_datetime_;
 }
 
-int32_t Configuration::number_of_threads() const
+int32_t Configuration::get_number_of_threads() const
 {
     return number_of_threads_;
 }
 
-std::filesystem::path Configuration::session_directory() const
+std::filesystem::path Configuration::get_session_directory_path() const
 {
-    return session_directory_;
+    return session_directory_path_;
 }
 
 void initialize_configuration(const int64_t tic_id, const int32_t sector)
