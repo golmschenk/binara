@@ -4,7 +4,9 @@ channels:
 dependencies:
   - python=3.11
   - clang>=21.1.0
-  - llvm-openmp
+  - clangxx>=21.1.0
+  - clang-tools>=21.1.0
+  - llvm-openmp>=21.1.0
   - boost>=1.83
   - cmake>=2.28
   - ninja>=1.11
@@ -12,3 +14,6 @@ dependencies:
   - pip:
       - nanobind
       - pytest
+      - bokeh
+      - numpy
+      - pandas
