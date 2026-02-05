@@ -8,18 +8,18 @@
 #include "configuration.h"
 
 
-void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_flag, const int color_flag,
+void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gmag_flag, const int color_flag,
               const int secular_drift_flag)
 {
     check_for_and_handle_python_interrupt();
-    initialize_configuration();
+    initialize_configuration(tic_id, sector);
     omp_set_num_threads(get_configuration().number_of_threads());
     // Load the MCMC data
     long int buffer_size;
     int py_niter, py_nchains, py_npars, py_nsectors, py_npast;
     double py_dtemp;
 
-    Load_MCMC_Constants(tic, sector, run_id, secular_drift_flag,
+    Load_MCMC_Constants(tic_id, sector, run_id, secular_drift_flag,
                         &py_niter, &py_nchains, &py_npars,
                         &py_nsectors, &py_npast, &py_dtemp, &buffer_size);
 
@@ -36,13 +36,13 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
     double* xmap = new double[NPARS];
     double* sigma = new double[NPARS];
 
-    Load_MCMC_Parameter_Info(tic, sector, run_id, secular_drift_flag, NPARS, &buffer_size,
+    Load_MCMC_Parameter_Info(tic_id, sector, run_id, secular_drift_flag, NPARS, &buffer_size,
                              limits, limited, gauss_pars, xmap, sigma);
 
 
     long int* points_per_sector = new long int[NSECTORS];
     long int py_npoints;
-    Load_MCMC_Sector_Points(tic, sector, run_id, secular_drift_flag, NSECTORS, &buffer_size,
+    Load_MCMC_Sector_Points(tic_id, sector, run_id, secular_drift_flag, NSECTORS, &buffer_size,
                             points_per_sector, &py_npoints);
 
     const int NPOINTS = py_npoints;
@@ -51,7 +51,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
     double* errors = new double[NPOINTS];
     double magdata[5], magerr[4];
 
-    Load_MCMC_Data_Arrays(tic, sector, run_id, secular_drift_flag, NPOINTS, &buffer_size,
+    Load_MCMC_Data_Arrays(tic_id, sector, run_id, secular_drift_flag, NPOINTS, &buffer_size,
                           times, fluxes, errors, magdata, magerr);
 
 
@@ -83,7 +83,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
     char outname[512] = "";
     char parname[512] = "";
 
-    Make_Files(tic, sector, run_id, gmag_flag, color_flag, secular_drift_flag, chainname, outname, parname);
+    Make_Files(tic_id, sector, run_id, gmag_flag, color_flag, secular_drift_flag, chainname, outname, parname);
 
     RandomGenerator* random_generator = create_random_generator(0);
 
