@@ -45,7 +45,7 @@ def load_tic_data(tic_id: int, sector: int = -1):
     period = float(header[-1])
     # Load magdata
     magdata, magerr = [], []
-    magnitudes_path = target_directory.joinpath('magnitudes.txt')
+    magnitudes_path = target_directory.joinpath('magnitudes_and_colors.txt')
     # Fill empty gmag data
     with magnitudes_path.open() as magnitudes_file:
         distance = magnitudes_file.readline().split()[0]
