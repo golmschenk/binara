@@ -11,7 +11,7 @@ public:
     [[nodiscard]] std::filesystem::path get_session_directory_path() const;
     [[nodiscard]] std::filesystem::path get_py_initialize_path() const;
     [[nodiscard]] std::filesystem::path get_states_path() const;
-    [[nodiscard]] std::filesystem::path get_folded_observed_and_and_model_light_curves_path() const;
+    [[nodiscard]] std::filesystem::path get_folded_observed_and_model_light_curves_path() const;
     [[nodiscard]] std::filesystem::path get_parameters_path() const;
 
 private:

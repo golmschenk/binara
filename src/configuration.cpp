@@ -176,7 +176,7 @@ std::filesystem::path Configuration::get_states_path() const
     return states_path_;
 }
 
-std::filesystem::path Configuration::get_folded_observed_and_and_model_light_curves_path() const
+std::filesystem::path Configuration::get_folded_observed_and_model_light_curves_path() const
 {
     return folded_observed_and_and_model_light_curves_path_;
 }

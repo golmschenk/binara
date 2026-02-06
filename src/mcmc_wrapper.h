@@ -28,13 +28,10 @@ void Run_MCMC(int, int, int, int, int, int);
 }
 #endif
 
-void Make_Files(const int tic, const int sector, const int run_id, const int gmag_flag, const int color_flag,
-                const int secular_drift_flag, char* chainname, char* outname, char* parfile);
-
-void Log_Data(char* chainname, char* outname, char* parname, int iter, double** x, double* logLx, int* index,
+void Log_Data(int iter, double** x, double* logLx, int* index,
               long int* points_per_sector, double all_sector_phases[], double all_sector_fluxes[],
               double all_sector_uncertainties[], const int NPARS, const int NSECTORS, const int NCHAINS,
               const int secular_drift_flag);
 
-void Read_Parameters(char* chainname, double** X, const int NPARS, const int NCHAINS);
+void Read_Parameters(double** X, const int NPARS, const int NCHAINS);
 #endif

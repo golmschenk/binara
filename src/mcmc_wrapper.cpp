@@ -2,6 +2,8 @@
 
 #include <fstream>
 #include <iosfwd>
+#include <iomanip>
+#include <iostream>
 
 #include "python_interrupt_handling.h"
 #include "random_generator.h"
@@ -79,12 +81,6 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
 
     auto** random_generators_for_chains = new RandomGenerator*[NCHAINS];
 
-    char chainname[512] = "";
-    char outname[512] = "";
-    char parname[512] = "";
-
-    Make_Files(tic_id, sector, run_id, gmag_flag, color_flag, secular_drift_flag, chainname, outname, parname);
-
     RandomGenerator* random_generator = create_random_generator(0);
 
     check_for_and_handle_python_interrupt();
@@ -150,7 +146,7 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
                              color_flag, secular_drift_flag);
     printf("Log likelihood is %f\n", logLmap);
 
-    Read_Parameters(parname, x, NPARS, NCHAINS);
+    Read_Parameters(x, NPARS, NCHAINS);
 
     // Main MCMC loop starts here
     for (int iter = 0; iter < NITER; iter++)
@@ -158,9 +154,9 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
         check_for_and_handle_python_interrupt();
         int k = iter - (iter / NPAST) * NPAST;
 
-#if ENABLE_OPENMP
-#pragma omp parallel for schedule(static)
-#endif
+        #if ENABLE_OPENMP
+        #pragma omp parallel for schedule(static)
+        #endif
         for (int j = 0; j < NCHAINS; j++)
         {
             // Test parameters
@@ -347,7 +343,7 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
 
         if (iter % 100 == 0)
         {
-            Log_Data(chainname, outname, parname, iter, x, logLx, index,
+            Log_Data(iter, x, logLx, index,
                      points_per_sector, times, fluxes,
                      errors, NPARS, NSECTORS, NCHAINS, secular_drift_flag);
         }
@@ -528,114 +524,44 @@ void Ptmcmc(int* index, double temp[], double logL[], double logP[], const int N
     return;
 }
 
-
-void Make_Files(const int tic, const int sector, const int run_id, const int gmag_flag, const int color_flag,
-                const int secular_drift_flag, char* chainname, char* outname, char* parname)
-{
-    char prefix[100] = "";
-    char suffix[100] = "";
-    char tic_num[15] = "";
-    char run_num[15] = "";
-    char sec_num[15] = "";
-
-    sprintf(prefix, "data");
-    sprintf(tic_num, "%d", tic);
-    sprintf(run_num, "_%d", run_id);
-    sprintf(sec_num, "_sector_%d", sector);
-
-    strcat(suffix, tic_num);
-    strcat(suffix, sec_num);
-
-    if (gmag_flag)
-    {
-        strcat(suffix, "_gmag");
-    }
-
-    if (color_flag)
-    {
-        strcat(suffix, "_color");
-    }
-
-    if (ENABLE_OPENMP)
-    {
-        strcat(suffix, "_OMP");
-    }
-
-    if (secular_drift_flag)
-    {
-        strcat(suffix, "_drift");
-    }
-
-    strcat(suffix, run_num);
-
-    strcat(chainname, prefix);
-    strcat(outname, prefix);
-    strcat(parname, prefix);
-    strcat(chainname, "/chains/chain.");
-    strcat(outname, "/lightcurves/mcmc_lightcurves/");
-    strcat(parname, "/pars/pars.");
-
-    strcat(chainname, suffix);
-    strcat(outname, suffix);
-    strcat(parname, suffix);
-    strcat(chainname, ".dat");
-    strcat(outname, ".out");
-    strcat(parname, ".out");
-
-    printf("Chainfile: %s\n", chainname);
-    printf("outfile: %s\n", outname);
-    printf("parfile: %s\n", parname);
-
-    if (!exists(chainname))
-    {
-        printf("Old chain file not found, creating new file \n");
-        std::ofstream chain_file(chainname);
-    }
-
-    std::ofstream out_file(outname);
-    return;
-}
-
-
 // Log the lightcurve file and the data
-void Log_Data(char* chainname, char* outname, char* parname, int iter, double** x, double* logLx, int* index,
+void Log_Data(int iter, double** x, double* logLx, int* index,
               long int* points_per_sector, double all_sector_phases[], double all_sector_fluxes[],
               double all_sector_uncertainties[], const int NPARS, const int NSECTORS, const int NCHAINS,
               const int secular_drift_flag)
 {
-    FILE *chain_file, *out_file, *par_file;
+    std::filesystem::path states_path = get_configuration().get_states_path();
+    std::filesystem::path light_curves_path = get_configuration().get_folded_observed_and_model_light_curves_path();
+    std::filesystem::path parameters_path = get_configuration().get_parameters_path();
 
-    if (exists(chainname))
-    {
-        chain_file = fopen(chainname, "a");
-    }
-    else
-    {
-        chain_file = fopen(chainname, "w");
-    }
+    std::ofstream states_file(states_path, std::ios::app);
+    std::ofstream light_curves_file(light_curves_path);
+    std::ofstream parameters_file(parameters_path);
 
-    out_file = fopen(outname, "w");
-    par_file = fopen(parname, "w");
+    // Set precision for scientific notation
+    states_file << std::scientific << std::setprecision(12);
+    light_curves_file << std::scientific << std::setprecision(5);
+    parameters_file << std::scientific << std::setprecision(12);
 
-    //print parameter chains
-    fprintf(chain_file, "%ld %.12g ", iter, logLx[index[0]]);
+    // Print parameter chains
+    states_file << iter << " " << logLx[index[0]] << " ";
     for (int i = 0; i < NPARS; i++)
     {
         // write inc not cos(inc)
         if ((i == 4) & (secular_drift_flag != 1))
         {
-            fprintf(chain_file, "%.12g ", acos(x[index[0]][i]));
+            states_file << acos(x[index[0]][i]) << " ";
         }
         else
         {
-            fprintf(chain_file, "%.12g ", x[index[0]][i]);
+            states_file << x[index[0]][i] << " ";
         }
-        fprintf(par_file, "%.12g ", x[index[0]][i]);
+        parameters_file << x[index[0]][i] << " ";
     }
 
-    fprintf(chain_file, "\n");
+    states_file << "\n";
 
-    // Print the lighcurve for each sector
+    // Print the lightcurve for each sector
     const int npars_sector = npars_common + npars_unique;
     double* sector_params = new double[npars_sector];
     int skip_samples = 0;
@@ -676,7 +602,7 @@ void Log_Data(char* chainname, char* outname, char* parname, int iter, double** 
             {
                 sector_params[ii] = __temp[ii];
             }
-            free(__temp);
+            delete[] __temp;
         }
 
         const int Npoints_in_sector = points_per_sector[sector_number];
@@ -685,49 +611,45 @@ void Log_Data(char* chainname, char* outname, char* parname, int iter, double** 
         double* sector_uncetainties = new double[Npoints_in_sector];
         double* sector_template = new double[Npoints_in_sector];
 
-        for (int index = 0; index < Npoints_in_sector; index++)
+        for (int idx = 0; idx < Npoints_in_sector; idx++)
         {
-            sector_flux[index] = all_sector_fluxes[skip_samples + index];
-            sector_phase[index] = all_sector_phases[skip_samples + index];
-            sector_uncetainties[index] = all_sector_uncertainties[skip_samples + index];
+            sector_flux[idx] = all_sector_fluxes[skip_samples + idx];
+            sector_phase[idx] = all_sector_phases[skip_samples + idx];
+            sector_uncetainties[idx] = all_sector_uncertainties[skip_samples + idx];
         }
 
         Calculate_Lightcurve(sector_phase, Npoints_in_sector, sector_params,
                              sector_template);
         for (int i = 0; i < Npoints_in_sector; i++)
         {
-            fprintf(out_file, "%12.5e %12.5e %12.5e %12.5e\n", sector_phase[i], sector_flux[i], sector_template[i],
-                    sector_uncetainties[i]);
+            light_curves_file << sector_phase[i] << " " << sector_flux[i] << " "
+                              << sector_template[i] << " " << sector_uncetainties[i] << "\n";
         }
 
-        free(sector_flux);
-        free(sector_phase);
-        free(sector_uncetainties);
-        free(sector_template);
+        delete[] sector_flux;
+        delete[] sector_phase;
+        delete[] sector_uncetainties;
+        delete[] sector_template;
 
         skip_samples += Npoints_in_sector;
     }
 
-    free(sector_params);
-
-    fclose(out_file);
-    fclose(chain_file);
-    fclose(par_file);
-    return;
+    delete[] sector_params;
 }
 
-// Read parameters from the existing chain file
-void Read_Parameters(char* parname, double** X, const int NPARS, const int NCHAINS)
+// Read parameters from the existing paramters file
+void Read_Parameters(double** X, const int NPARS, const int NCHAINS)
 {
-    if (exists(parname))
+    std::filesystem::path path = get_configuration().get_parameters_path();
+    if (!std::filesystem::is_empty(path))
     {
-        printf("Reading pars from existing chain: %s \n", parname);
-        FILE* par_file = fopen(parname, "r");
+        std::cout << "Reading parameters from existing parameters file: " << path << std::endl;
+        std::ifstream par_file(path);
 
         for (int i = 0; i < NPARS; i++)
         {
             double temp;
-            fscanf(par_file, "%lf\t", &temp);
+            par_file >> temp;
             for (int j = 0; j < NCHAINS; j++)
             {
                 if (j == 4)
@@ -736,12 +658,11 @@ void Read_Parameters(char* parname, double** X, const int NPARS, const int NCHAI
                 }
                 X[j][i] = temp;
             }
-            printf("Read parameters: %f \t", X[0][i]);
+            std::cout << "Read parameters: " << X[0][i] << "\t";
         }
     }
     else
     {
-        printf("Par file not found; initializing random parameters \n");
+        std::cout << "Parameters file is empty; initializing random parameters." << std::endl;
     }
-    return;
 }
