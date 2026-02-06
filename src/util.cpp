@@ -4,6 +4,11 @@
 #include "stdio.h"
 #include "util.h"
 
+#include <filesystem>
+#include <iostream>
+
+#include "configuration.h"
+
 extern const int npars_common = 19;
 extern const int npars_unique = 3;
 
@@ -74,76 +79,37 @@ void Get_Datafile_Name(const int tic, const int sector, const int run_id, const 
 }
 
 
-int Load_MCMC_Constants(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                        int* py_niter, int* py_nchains, int* py_npars,
-                        int* py_nsectors, int* py_npast, double* py_dtemp, long int* buffer_size)
+void Load_MCMC_Constants(const int tic, const int sector, const int run_id, const int secular_drift_flag,
+                         int* py_niter, int* py_nchains, int* py_npars,
+                         int* py_nsectors, int* py_npast, double* py_dtemp, long int* buffer_size)
 {
-    char path[1024] = "data/py_initialize/";;
-    Get_Datafile_Name(tic, sector, run_id, secular_drift_flag, path);
-    printf("Reading constants \n");
-
-    if (exists(path) != 1)
-    {
-        printf("ERROR: Data file does not exist: %s\n", path);
-        return 0;
-    }
-
-    FILE* data_file = fopen(path, "r");
-    *buffer_size = 0;
-    int temp_int;
-    double temp_dbl;
-
-    // The header of the file contains NITER, NCHAINS, NPARS, NSECTORS and dtemp
-    fscanf(data_file, "%d\t", &temp_int);
-    (*py_niter) = temp_int;
-    fscanf(data_file, "%d\t", &temp_int);
-    (*py_nchains) = temp_int;
-    fscanf(data_file, "%d\t", &temp_int);
-    (*py_npars) = temp_int;
-    fscanf(data_file, "%d\t", &temp_int);
-    (*py_nsectors) = temp_int;
-    fscanf(data_file, "%d\t", &temp_int);
-    (*py_npast) = temp_int;
-    fscanf(data_file, "%lf\n", &temp_dbl);
-    (*py_dtemp) = temp_dbl;
-
-    printf("Read the following input parameters: \n");
-    printf("NITER: %d NCHAINS: %d NPARS: %d NSECTORS: %d NPAST: %d dtemp: %f \n", *py_niter,
-           *py_nchains, *py_npars, *py_nsectors, *py_npast, *py_dtemp);
-
-    // Get the number of bytes read
-    *buffer_size = ftell(data_file);
-    fclose(data_file);
-    return 1;
+    std::filesystem::path path = get_configuration().get_py_initialize_path();
+    std::cout << "Reading constants from: " << path << std::endl;
+    std::ifstream data_file(path);
+    data_file >> *py_niter >> *py_nchains >> *py_npars >> *py_nsectors >> *py_npast >> *py_dtemp;
+    std::cout << "Read the following input parameters: " << std::endl;
+    std::cout << "NITER: " << *py_niter << " NCHAINS: " << *py_nchains
+              << " NPARS: " << *py_npars << " NSECTORS: " << *py_nsectors
+              << " NPAST: " << *py_npast << " dtemp: " << *py_dtemp << std::endl;
+    *buffer_size = data_file.tellg();
 }
 
-int Load_MCMC_Parameter_Info(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                             const int NPARS, long int* buffer_size,
-                             bounds* limits, bounds* limited, gauss_bounds* gauss_pars,
-                             double* X_init, double* sigma)
+void Load_MCMC_Parameter_Info(const int tic, const int sector, const int run_id, const int secular_drift_flag,
+                              const int NPARS, long int* buffer_size,
+                              bounds* limits, bounds* limited, gauss_bounds* gauss_pars,
+                              double* X_init, double* sigma)
 {
-    char path[1024] = "data/py_initialize/";;
-    Get_Datafile_Name(tic, sector, run_id, secular_drift_flag, path);
-    printf("Reading parameter information \n");
+    std::filesystem::path path = get_configuration().get_py_initialize_path();
+    std::cout << "Reading parameter information" << std::endl;
+    std::ifstream data_file(path);
+    data_file.seekg(*buffer_size);
 
-    if (exists(path) != 1)
-    {
-        printf("ERROR: Data file does not exist: %s\n", path);
-        return 0;
-    }
-
-    FILE* data_file = fopen(path, "r");
-    fseek(data_file, *buffer_size, SEEK_SET);
-
-    double par_min, par_max, par_mean, par_jump, prior_gauss_mean, prior_gauss_std,
-           bc_buffer;
-    int boundary_condition;
+    double par_min, par_max, par_mean, par_jump, prior_gauss_mean, prior_gauss_std, bc_buffer;
 
     for (int ipar = 0; ipar < NPARS; ipar++)
     {
-        fscanf(data_file, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", &par_mean, &par_min, &par_max,
-               &bc_buffer, &par_jump, &prior_gauss_mean, &prior_gauss_std);
-        boundary_condition = (int)bc_buffer;
+        data_file >> par_mean >> par_min >> par_max >> bc_buffer >> par_jump >> prior_gauss_mean >> prior_gauss_std;
+        int boundary_condition = static_cast<int>(bc_buffer);
         limits[ipar].lo = par_min;
         limits[ipar].hi = par_max;
         limited[ipar].lo = boundary_condition;
@@ -154,79 +120,52 @@ int Load_MCMC_Parameter_Info(const int tic, const int sector, const int run_id, 
         sigma[ipar] = par_jump;
     }
 
-    printf("Read parameter arrays \n");
-    *buffer_size = ftell(data_file);
-    fclose(data_file);
-    return 1;
+    std::cout << "Read parameter arrays" << std::endl;
+    *buffer_size = data_file.tellg();
 }
 
-int Load_MCMC_Sector_Points(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                            const int NSECTORS, long int* buffer_size, long int* points_per_sector,
-                            long int* py_npoints)
+void Load_MCMC_Sector_Points(const int tic, const int sector, const int run_id, const int secular_drift_flag,
+                             const int NSECTORS, long int* buffer_size, long int* points_per_sector,
+                             long int* py_npoints)
 {
-    char path[1024] = "data/py_initialize/";;
-    Get_Datafile_Name(tic, sector, run_id, secular_drift_flag, path);
-    printf("Reading sector information \n");
+    std::filesystem::path path = get_configuration().get_py_initialize_path();
+    std::cout << "Reading sector information" << std::endl;
+    std::ifstream data_file(path);
+    data_file.seekg(*buffer_size);
 
-    if (exists(path) != 1)
-    {
-        printf("ERROR: Data file does not exist: %s\n", path);
-        return 0;
-    }
-
-    FILE* data_file = fopen(path, "r");
-    fseek(data_file, *buffer_size, SEEK_SET);
-
-    // Read points per sector
-    int temp_int;
     *py_npoints = 0;
 
-    for (int i = 0; i < NSECTORS - 1; i++)
+    for (int i = 0; i < NSECTORS; i++)
     {
-        fscanf(data_file, "%d\t", &temp_int);
+        int temp_int;
+        data_file >> temp_int;
         points_per_sector[i] = temp_int;
         *py_npoints += temp_int;
     }
-    fscanf(data_file, "%d\n", &temp_int);
-    points_per_sector[NSECTORS - 1] = temp_int;
-    *py_npoints += temp_int;
 
-    printf("Data has %ld points \n", *py_npoints);
-    *buffer_size = ftell(data_file);
-    fclose(data_file);
-    return 1;
+    std::cout << "Data has " << *py_npoints << " points" << std::endl;
+    *buffer_size = data_file.tellg();
 }
 
-int Load_MCMC_Data_Arrays(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                          const int NPOINTS, long int* buffer_size, double* times, double* fluxes,
-                          double* errors, double* magdata, double* magerr)
+void Load_MCMC_Data_Arrays(const int tic, const int sector, const int run_id, const int secular_drift_flag,
+                           const int NPOINTS, long int* buffer_size, double* times, double* fluxes,
+                           double* errors, double* magdata, double* magerr)
 {
-    char path[1024] = "data/py_initialize/";;
-    Get_Datafile_Name(tic, sector, run_id, secular_drift_flag, path);
-    printf("Reading lightcurve and color data \n");
+    std::filesystem::path path = get_configuration().get_py_initialize_path();
+    std::cout << "Reading lightcurve and color data" << std::endl;
+    std::ifstream data_file(path);
+    data_file.seekg(*buffer_size);
 
-    if (exists(path) != 1)
-    {
-        printf("ERROR: Data file does not exist: %s\n", path);
-        return 0;
-    }
-
-    FILE* data_file = fopen(path, "r");
-    fseek(data_file, *buffer_size, SEEK_SET);
-
-    double time, flux, err;
     for (int i = 0; i < NPOINTS; i++)
     {
-        fscanf(data_file, "%lf\t%lf\t%lf\n", &time, &flux, &err);
-        times[i] = time;
-        fluxes[i] = flux;
-        errors[i] = err;
+        data_file >> times[i] >> fluxes[i] >> errors[i];
     }
 
     double dist, gmag, vb, bg, gt;
-    fscanf(data_file, "%lf\t%lf\t%lf\t%lf\t%lf\n", &dist, &gmag, &vb, &bg, &gt);
+    data_file >> dist >> gmag >> vb >> bg >> gt;
+
     double gmag_err, vb_err, bg_err, gt_err;
-    fscanf(data_file, "%lf\t%lf\t%lf\t%lf", &gmag_err, &vb_err, &bg_err, &gt_err);
+    data_file >> gmag_err >> vb_err >> bg_err >> gt_err;
 
     magdata[0] = dist;
     magdata[1] = gmag;
@@ -239,9 +178,6 @@ int Load_MCMC_Data_Arrays(const int tic, const int sector, const int run_id, con
     magerr[2] = bg_err;
     magerr[3] = gt_err;
 
-    printf("Distance to the source is %lf pc\n", dist);
-
-    *buffer_size = ftell(data_file);
-    fclose(data_file);
-    return 1;
+    std::cout << "Distance to the source is " << dist << " pc" << std::endl;
+    *buffer_size = data_file.tellg();
 }
