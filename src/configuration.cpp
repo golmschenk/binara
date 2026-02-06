@@ -166,6 +166,26 @@ std::filesystem::path Configuration::get_session_directory_path() const
     return session_directory_path_;
 }
 
+std::filesystem::path Configuration::get_py_initialize_path() const
+{
+    return py_initialize_path_;
+}
+
+std::filesystem::path Configuration::get_states_path() const
+{
+    return states_path_;
+}
+
+std::filesystem::path Configuration::get_folded_observed_and_and_model_light_curves_path() const
+{
+    return folded_observed_and_and_model_light_curves_path_;
+}
+
+std::filesystem::path Configuration::get_parameters_path() const
+{
+    return parameters_path_;
+}
+
 void initialize_configuration(const int64_t tic_id, const int32_t sector)
 {
     configuration_instance.reset(new Configuration(tic_id, sector));

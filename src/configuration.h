@@ -9,6 +9,10 @@ public:
     [[nodiscard]] bool prefix_session_directory_with_datetime() const;
     [[nodiscard]] int32_t get_number_of_threads() const;
     [[nodiscard]] std::filesystem::path get_session_directory_path() const;
+    [[nodiscard]] std::filesystem::path get_py_initialize_path() const;
+    [[nodiscard]] std::filesystem::path get_states_path() const;
+    [[nodiscard]] std::filesystem::path get_folded_observed_and_and_model_light_curves_path() const;
+    [[nodiscard]] std::filesystem::path get_parameters_path() const;
 
 private:
     [[nodiscard]] static int32_t initialize_number_of_threads(const toml::table& toml_configuration_table);
