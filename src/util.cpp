@@ -60,28 +60,9 @@ int exists(const char* fname)
 }
 
 
-void Get_Datafile_Name(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                       char path[])
-{
-    char fname[256] = "";
-    if (secular_drift_flag == 0)
-    {
-
-        sprintf(fname, "%d_sector_%d_run_%d.txt", tic, sector, run_id);
-        strcat(path, fname);
-    }
-    else
-    {
-        sprintf(fname, "%d_sector_%d_run_%d_drift.txt", tic, sector, run_id);
-        strcat(path, fname);
-    }
-    return;
-}
-
-
-void Load_MCMC_Constants(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                         int* py_niter, int* py_nchains, int* py_npars,
-                         int* py_nsectors, int* py_npast, double* py_dtemp, long int* buffer_size)
+void Load_MCMC_Constants(
+    int* py_niter, int* py_nchains, int* py_npars,
+    int* py_nsectors, int* py_npast, double* py_dtemp, long int* buffer_size)
 {
     std::filesystem::path path = get_configuration().get_py_initialize_path();
     std::cout << "Reading constants from: " << path << std::endl;
@@ -94,10 +75,10 @@ void Load_MCMC_Constants(const int tic, const int sector, const int run_id, cons
     *buffer_size = data_file.tellg();
 }
 
-void Load_MCMC_Parameter_Info(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                              const int NPARS, long int* buffer_size,
-                              bounds* limits, bounds* limited, gauss_bounds* gauss_pars,
-                              double* X_init, double* sigma)
+void Load_MCMC_Parameter_Info(
+    const int NPARS, long int* buffer_size,
+    bounds* limits, bounds* limited, gauss_bounds* gauss_pars,
+    double* X_init, double* sigma)
 {
     std::filesystem::path path = get_configuration().get_py_initialize_path();
     std::cout << "Reading parameter information" << std::endl;
@@ -124,9 +105,9 @@ void Load_MCMC_Parameter_Info(const int tic, const int sector, const int run_id,
     *buffer_size = data_file.tellg();
 }
 
-void Load_MCMC_Sector_Points(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                             const int NSECTORS, long int* buffer_size, long int* points_per_sector,
-                             long int* py_npoints)
+void Load_MCMC_Sector_Points(
+    const int NSECTORS, long int* buffer_size, long int* points_per_sector,
+    long int* py_npoints)
 {
     std::filesystem::path path = get_configuration().get_py_initialize_path();
     std::cout << "Reading sector information" << std::endl;
@@ -147,9 +128,9 @@ void Load_MCMC_Sector_Points(const int tic, const int sector, const int run_id, 
     *buffer_size = data_file.tellg();
 }
 
-void Load_MCMC_Data_Arrays(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                           const int NPOINTS, long int* buffer_size, double* times, double* fluxes,
-                           double* errors, double* magdata, double* magerr)
+void Load_MCMC_Data_Arrays(
+    const int NPOINTS, long int* buffer_size, double* times, double* fluxes,
+    double* errors, double* magdata, double* magerr)
 {
     std::filesystem::path path = get_configuration().get_py_initialize_path();
     std::cout << "Reading lightcurve and color data" << std::endl;

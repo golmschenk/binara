@@ -19,7 +19,7 @@ def test_can_run_mcmc_multi_sector():
         if sessions_directory.exists():
             shutil.rmtree(sessions_directory)
         shutil.copytree(working_directory.joinpath('template_starting_data_directory'), data_directory)
-        binara.internal_run_mcmc(150284425, -1, 1, 1, 0, 0)
+        binara.internal_run_mcmc(150284425, -1)
         verify_directories_match(sessions_directory,
                                  working_directory.joinpath('expected_resulting_sessions_directory'))
         if data_directory.exists():

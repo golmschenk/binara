@@ -17,6 +17,7 @@ namespace
         "system.number_of_threads",
         "modeling.use_g_magnitude",
         "modeling.use_colors",
+        "modeling.use_secular_drift",
     };
 
     void validate_table(const toml::table& table, const toml::path& path)

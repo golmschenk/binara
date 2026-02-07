@@ -1,4 +1,6 @@
 #include "likelihood.h"
+
+#include "configuration.h"
 #include "util.h"
 
 void Swap(double* a, double* b)
@@ -898,8 +900,7 @@ int RocheOverflow(double* pars)
 double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
                       double all_sector_uncertainties[], long int points_per_sector[],
                       const int NSECTORS, double all_parameters[],
-                      double mag_data[], double mag_err[], const int gmag_flag,
-                      const int color_flag, const int secular_drift_flag)
+                      double mag_data[], double mag_err[])
 {
     double logL_net = 0.;
 
@@ -923,7 +924,7 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
                 index];
         }
         // Re-arrange the ordering of the variables if the secular drift flag is on
-        if (secular_drift_flag == 1)
+        if (get_configuration().should_use_secular_drift() == 1)
         {
             // Current order: logM1, logM2, logP, sigma_r1, sigma_r2, mu_1, tau_1, mu_2, tau_2, alpha_ref_1, alpha_ref_2
             //                alpha_t1, alpha_t2, (e, i, omega, t0, blending, flux_tune, noise_resc)_j
@@ -1007,8 +1008,8 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
         chi2_local = chi2_local / exp(2 * ln_noise_resc);
         double logL_resc_term = -Npoints_in_sector * ln_noise_resc;
 
-        // The the gmag information
-        if (gmag_flag)
+        // The gmag information
+        if (get_configuration().should_use_g_magnitude())
         {
             double D = mag_data[0];
             double Gmg, BminusV, VminusG, GminusT;
@@ -1019,7 +1020,7 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
             double residual = (Gmg - mag_data[1]) / mag_err[0];
             chi2_local += residual * residual;
 
-            if (color_flag)
+            if (get_configuration().should_use_colors())
             {
                 for (int i = 0; i < 3; i++)
                 {

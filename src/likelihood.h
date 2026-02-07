@@ -13,8 +13,7 @@ void Calculate_Lightcurve(double* times, size_t Nt, double* pars, double* templa
 double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
                       double all_sector_uncertainties[], long int points_per_sector[],
                       const int NSECTORS, double all_parameters[],
-                      double mag_data[], double mag_err[], const int gmag_flag,
-                      const int color_flag, const int secular_drift_flag);
+                      double mag_data[], double mag_err[]);
 #ifdef __cplusplus
 }
 #endif

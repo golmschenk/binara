@@ -41,20 +41,18 @@ double Gaussian(double x, double mean, double sigma);
 int exists(const char* fname);
 
 // Loading data
-void Get_Datafile_Name(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                       char path[]);
-void Load_MCMC_Constants(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                         int* py_niter, int* py_nchains, int* py_npars,
-                         int* py_nsectors, int* py_npast, double* py_dtemp, long int* buffer_size);
-void Load_MCMC_Parameter_Info(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                              const int NPARS, long int* buffer_size,
-                              bounds* limits, bounds* limited, gauss_bounds* gauss_pars,
-                              double* X_init, double* sigma);
-void Load_MCMC_Sector_Points(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                             const int NSECTORS, long int* buffer_size, long int* points_per_sector,
-                             long int* py_npoints);
-void Load_MCMC_Data_Arrays(const int tic, const int sector, const int run_id, const int secular_drift_flag,
-                           const int NPOINTS, long int* buffer_size, double* times, double* fluxes,
-                           double* errors, double* magdata, double* magerr);
+void Load_MCMC_Constants(
+    int* py_niter, int* py_nchains, int* py_npars,
+    int* py_nsectors, int* py_npast, double* py_dtemp, long int* buffer_size);
+void Load_MCMC_Parameter_Info(
+    const int NPARS, long int* buffer_size,
+    bounds* limits, bounds* limited, gauss_bounds* gauss_pars,
+    double* X_init, double* sigma);
+void Load_MCMC_Sector_Points(
+    const int NSECTORS, long int* buffer_size, long int* points_per_sector,
+    long int* py_npoints);
+void Load_MCMC_Data_Arrays(
+    const int NPOINTS, long int* buffer_size, double* times, double* fluxes,
+    double* errors, double* magdata, double* magerr);
 
 #endif

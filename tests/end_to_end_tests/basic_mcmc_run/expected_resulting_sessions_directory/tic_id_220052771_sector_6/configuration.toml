@@ -1,2 +1,5 @@
+[modeling]
+use_g_magnitude = false
+
 [system]
 number_of_threads = 1

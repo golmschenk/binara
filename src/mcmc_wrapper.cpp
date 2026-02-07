@@ -10,8 +10,7 @@
 #include "configuration.h"
 
 
-void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gmag_flag, const int color_flag,
-              const int secular_drift_flag)
+void Run_MCMC(const int tic_id, const int sector)
 {
     check_for_and_handle_python_interrupt();
     initialize_configuration(tic_id, sector);
@@ -21,9 +20,8 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
     int py_niter, py_nchains, py_npars, py_nsectors, py_npast;
     double py_dtemp;
 
-    Load_MCMC_Constants(tic_id, sector, run_id, secular_drift_flag,
-                        &py_niter, &py_nchains, &py_npars,
-                        &py_nsectors, &py_npast, &py_dtemp, &buffer_size);
+    Load_MCMC_Constants(&py_niter, &py_nchains, &py_npars, &py_nsectors,
+                        &py_npast, &py_dtemp, &buffer_size);
 
     const int NCHAINS = py_nchains;
     const int NITER = py_niter;
@@ -38,14 +36,13 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
     double* xmap = new double[NPARS];
     double* sigma = new double[NPARS];
 
-    Load_MCMC_Parameter_Info(tic_id, sector, run_id, secular_drift_flag, NPARS, &buffer_size,
-                             limits, limited, gauss_pars, xmap, sigma);
+    Load_MCMC_Parameter_Info(NPARS, &buffer_size, limits, limited, gauss_pars, xmap,
+                             sigma);
 
 
     long int* points_per_sector = new long int[NSECTORS];
     long int py_npoints;
-    Load_MCMC_Sector_Points(tic_id, sector, run_id, secular_drift_flag, NSECTORS, &buffer_size,
-                            points_per_sector, &py_npoints);
+    Load_MCMC_Sector_Points(NSECTORS, &buffer_size, points_per_sector, &py_npoints);
 
     const int NPOINTS = py_npoints;
     double* times = new double[NPOINTS];
@@ -53,8 +50,8 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
     double* errors = new double[NPOINTS];
     double magdata[5], magerr[4];
 
-    Load_MCMC_Data_Arrays(tic_id, sector, run_id, secular_drift_flag, NPOINTS, &buffer_size,
-                          times, fluxes, errors, magdata, magerr);
+    Load_MCMC_Data_Arrays(NPOINTS, &buffer_size, times, fluxes, errors, magdata,
+                          magerr);
 
 
     const double GAMMA = 2.388 / sqrt(2. * (double)NPARS);
@@ -142,8 +139,7 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
     }
 
     logLmap = Log_Likelihood(times, fluxes, errors, points_per_sector,
-                             NSECTORS, xmap, magdata, magerr, gmag_flag,
-                             color_flag, secular_drift_flag);
+                             NSECTORS, xmap, magdata, magerr);
     printf("Log likelihood is %f\n", logLmap);
 
     Read_Parameters(x, NPARS, NCHAINS);
@@ -259,10 +255,9 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
 
             //compute current and trial likelihood
             logLx[chain_id] = Log_Likelihood(times, fluxes, errors, points_per_sector,
-                                             NSECTORS, x[chain_id], magdata, magerr, gmag_flag,
-                                             color_flag, secular_drift_flag);
+                                             NSECTORS, x[chain_id], magdata, magerr);
             logLy = Log_Likelihood(times, fluxes, errors, points_per_sector,
-                                   NSECTORS, y, magdata, magerr, gmag_flag, color_flag, secular_drift_flag);
+                                   NSECTORS, y, magdata, magerr);
 
             /* evaluate new solution */
             alpha = get_uniform_random_value(random_generators_for_chains[j]);
@@ -345,7 +340,7 @@ void Run_MCMC(const int tic_id, const int sector, const int run_id, const int gm
         {
             Log_Data(iter, x, logLx, index,
                      points_per_sector, times, fluxes,
-                     errors, NPARS, NSECTORS, NCHAINS, secular_drift_flag);
+                     errors, NPARS, NSECTORS, NCHAINS);
         }
     }
 
@@ -382,12 +377,8 @@ int main(int argc, char* argv[])
 {
     const int tic = atoi(argv[1]); //461541766;
     const int sector = atoi(argv[2]); //-1;
-    const int run_id = atoi(argv[3]); //1;
-    const int gmag_flag = atoi(argv[4]);
-    const int color_flag = atoi(argv[5]);
-    const int secular_drift_flag = atoi(argv[6]);
 
-    Run_MCMC(tic, sector, run_id, gmag_flag, color_flag, secular_drift_flag);
+    Run_MCMC(tic, sector);
     return 0;
 }
 
@@ -527,8 +518,7 @@ void Ptmcmc(int* index, double temp[], double logL[], double logP[], const int N
 // Log the lightcurve file and the data
 void Log_Data(int iter, double** x, double* logLx, int* index,
               long int* points_per_sector, double all_sector_phases[], double all_sector_fluxes[],
-              double all_sector_uncertainties[], const int NPARS, const int NSECTORS, const int NCHAINS,
-              const int secular_drift_flag)
+              double all_sector_uncertainties[], const int NPARS, const int NSECTORS, const int NCHAINS)
 {
     std::filesystem::path states_path = get_configuration().get_states_path();
     std::filesystem::path light_curves_path = get_configuration().get_folded_observed_and_model_light_curves_path();
@@ -548,7 +538,7 @@ void Log_Data(int iter, double** x, double* logLx, int* index,
     for (int i = 0; i < NPARS; i++)
     {
         // write inc not cos(inc)
-        if ((i == 4) & (secular_drift_flag != 1))
+        if ((i == 4) & (get_configuration().should_use_secular_drift() != 1))
         {
             states_file << acos(x[index[0]][i]) << " ";
         }
@@ -581,7 +571,7 @@ void Log_Data(int iter, double** x, double* logLx, int* index,
                 i];
         }
 
-        if (secular_drift_flag == 1)
+        if (get_configuration().should_use_secular_drift() == 1)
         {
             double* __temp = new double[npars_sector];
             // Current order: logM1, logM2, logP, sigma_r1, sigma_r2, mu_1, tau_1, mu_2, tau_2, alpha_ref_1, alpha_ref_2
