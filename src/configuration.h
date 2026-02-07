@@ -13,9 +13,13 @@ public:
     [[nodiscard]] std::filesystem::path get_states_path() const;
     [[nodiscard]] std::filesystem::path get_folded_observed_and_model_light_curves_path() const;
     [[nodiscard]] std::filesystem::path get_parameters_path() const;
+    [[nodiscard]] bool should_use_g_magnitude() const;
+    [[nodiscard]] bool should_use_colors() const;
 
 private:
     [[nodiscard]] static int32_t initialize_number_of_threads(const toml::table& toml_configuration_table);
+    [[nodiscard]] static bool initialize_should_use_g_magnitude(const toml::table& toml_configuration_table);
+    [[nodiscard]] static bool initialize_should_use_colors(const toml::table& toml_configuration_table);
     [[nodiscard]] static std::filesystem::path initialize_session_directory_path(
         const toml::table& toml_configuration_table,
         int64_t tic_id,
@@ -31,6 +35,8 @@ private:
         session_directory_path);
     Configuration(int64_t tic_id, int32_t sector);
     bool prefix_session_directory_with_datetime_;
+    bool should_use_g_magnitude_;
+    bool should_use_colors_;
     int32_t number_of_threads_;
     std::filesystem::path session_directory_path_;
     std::filesystem::path data_directory_path_;

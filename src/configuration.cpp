@@ -15,6 +15,8 @@ namespace
     const std::unordered_set<std::string> allowed_paths = {
         "output.prefix_session_directory_with_datetime",
         "system.number_of_threads",
+        "modeling.use_g_magnitude",
+        "modeling.use_colors",
     };
 
     void validate_table(const toml::table& table, const toml::path& path)
@@ -67,6 +69,18 @@ int32_t Configuration::initialize_number_of_threads(const toml::table& toml_conf
         std::cout << "number_of_threads = " << number_of_threads << std::endl;
     }
     return number_of_threads;
+}
+
+bool Configuration::initialize_should_use_g_magnitude(const toml::table& toml_configuration_table)
+{
+    bool should_use_g_magnitude = toml_configuration_table.at_path("modeling.use_g_magnitude").value_or(true);
+    return should_use_g_magnitude;
+}
+
+bool Configuration::initialize_should_use_colors(const toml::table& toml_configuration_table)
+{
+    bool should_use_colors = toml_configuration_table.at_path("modeling.use_colors").value_or(false);
+    return should_use_colors;
 }
 
 std::filesystem::path Configuration::initialize_session_directory_path(
@@ -150,6 +164,8 @@ Configuration::Configuration(const int64_t tic_id, const int32_t sector)
              folded_observed_and_and_model_light_curves_path_,
              parameters_path_) = copy_input_data_and_initialize_file_paths(
         data_directory_path_, session_directory_path_);
+    should_use_g_magnitude_ = initialize_should_use_g_magnitude(toml_configuration_table);
+    should_use_colors_ = initialize_should_use_colors(toml_configuration_table);
 }
 
 bool Configuration::prefix_session_directory_with_datetime() const
@@ -185,6 +201,16 @@ std::filesystem::path Configuration::get_folded_observed_and_model_light_curves_
 std::filesystem::path Configuration::get_parameters_path() const
 {
     return parameters_path_;
+}
+
+bool Configuration::should_use_g_magnitude() const
+{
+    return should_use_g_magnitude_;
+}
+
+bool Configuration::should_use_colors() const
+{
+    return should_use_colors_;
 }
 
 void initialize_configuration(const int64_t tic_id, const int32_t sector)
