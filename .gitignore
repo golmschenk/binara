@@ -587,3 +587,7 @@ cython_debug/
 #.idea/
 
 .idea
+
+
+# Project specific.
+!tests/**/*.out
