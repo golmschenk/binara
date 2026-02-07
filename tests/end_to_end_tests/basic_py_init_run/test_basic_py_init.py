@@ -1,3 +1,4 @@
+import os
 import shutil
 from pathlib import Path
 
@@ -6,8 +7,10 @@ from binara.init_data import write_mcmc_data
 from tests.data_directory_manipulations import verify_directories_match
 from tests.working_directory_context import use_working_directory
 
+# Python and the extension library each seem to have their own copy of OpenMP. This allows that during tests.
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-def test_can_run_mcmc():
+def test_basic_init_data():
     working_directory = Path(__file__).parent
     with use_working_directory(working_directory):
         data_directory = working_directory.joinpath('data')

@@ -1,9 +1,11 @@
+import os
+
 import numpy as np
-from bokeh.io import show
-from bokeh.plotting import figure
 
 from binara import internal_calculate_light_curve
 
+# Python and the extension library each seem to have their own copy of OpenMP. This allows that during tests.
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 def test_calculate_light_curve():
     # Parameters and sample light curve taken from a run of Gioula Kalapotharakos for TIC ID 110602878 sector 34.
