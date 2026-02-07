@@ -22,14 +22,8 @@ private:
     [[nodiscard]] static bool initialize_should_use_g_magnitude(const toml::table& toml_configuration_table);
     [[nodiscard]] static bool initialize_should_use_colors(const toml::table& toml_configuration_table);
     [[nodiscard]] static bool initialize_should_use_secular_drift(const toml::table& toml_configuration_table);
-    [[nodiscard]] static std::filesystem::path initialize_session_directory_path(
-        const toml::table& toml_configuration_table,
-        int64_t tic_id,
-        int32_t sector);
-    [[nodiscard]] static std::filesystem::path initialize_data_directory_path(
-        const toml::table& toml_configuration_table,
-        int64_t tic_id,
-        int32_t sector);
+    [[nodiscard]] std::filesystem::path initialize_session_directory_path(int64_t tic_id, int32_t sector);
+    [[nodiscard]] static std::filesystem::path initialize_data_directory_path(int64_t tic_id, int32_t sector);
     static std::tuple<std::filesystem::path, std::filesystem::path, std::filesystem::path, std::filesystem::path,
                       std::filesystem::path, std::filesystem::path> copy_input_data_and_initialize_file_paths(
         const std::filesystem::path& data_directory_path,

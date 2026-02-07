@@ -5,6 +5,8 @@
 #include <format>
 #include <omp.h>
 #include <unordered_set>
+#include <chrono>
+#include <string>
 
 #include "toml++/toml.hpp"
 
@@ -49,6 +51,17 @@ namespace
             }
         }
     }
+
+    std::string get_datetime_string()
+    {
+        const auto now = std::chrono::system_clock::now();
+        const std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+        const std::tm* local_datetime = std::localtime(&now_time);
+
+        std::ostringstream stream;
+        stream << std::put_time(local_datetime, "%Y_%m_%d_%H_%M_%S");
+        return stream.str();
+    }
 }
 
 int32_t Configuration::initialize_number_of_threads(const toml::table& toml_configuration_table)
@@ -91,13 +104,16 @@ bool Configuration::initialize_should_use_secular_drift(const toml::table& toml_
 }
 
 std::filesystem::path Configuration::initialize_session_directory_path(
-    const toml::table& toml_configuration_table,
     const int64_t tic_id,
     const int32_t sector)
 {
     std::filesystem::path sessions_root_directory{"sessions"};
-    std::filesystem::path session_directory = sessions_root_directory / std::format(
-        "tic_id_{}_sector_{}", tic_id, sector);
+    auto session_name = std::format("tic_id_{}_sector_{}", tic_id, sector);
+    if (prefix_session_directory_with_datetime_)
+    {
+        session_name = std::format("{}_{}", get_datetime_string(), session_name);
+    }
+    std::filesystem::path session_directory = sessions_root_directory / session_name;
     if (std::filesystem::exists(session_directory))
     {
         std::cerr << "Output session directory `" << session_directory << "` already exists. Halting program.";
@@ -108,7 +124,6 @@ std::filesystem::path Configuration::initialize_session_directory_path(
 }
 
 std::filesystem::path Configuration::initialize_data_directory_path(
-    const toml::table& toml_configuration_table,
     const int64_t tic_id,
     const int32_t sector)
 {
@@ -165,8 +180,8 @@ Configuration::Configuration(const int64_t tic_id, const int32_t sector)
         prefix_session_directory_with_datetime_ << std::endl;
 
     number_of_threads_ = initialize_number_of_threads(toml_configuration_table);
-    session_directory_path_ = initialize_session_directory_path(toml_configuration_table, tic_id, sector);
-    data_directory_path_ = initialize_data_directory_path(toml_configuration_table, tic_id, sector);
+    session_directory_path_ = initialize_session_directory_path(tic_id, sector);
+    data_directory_path_ = initialize_data_directory_path(tic_id, sector);
     std::tie(folded_observed_light_curve_path_, magnitudes_and_colors_path_, py_initialize_path_, states_path_,
              folded_observed_and_and_model_light_curves_path_,
              parameters_path_) = copy_input_data_and_initialize_file_paths(

@@ -1,2 +1,5 @@
 [system]
 number_of_threads = 1
+
+[output]
+prefix_session_directory_with_datetime = false
