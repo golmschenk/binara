@@ -541,12 +541,13 @@ void Log_Data(int iter, double** x, double* logLx, int* index,
         if ((i == 4) & (get_configuration().should_use_secular_drift() != 1))
         {
             states_file << acos(x[index[0]][i]) << " ";
+            parameters_file << acos(x[index[0]][i]) << " ";
         }
         else
         {
             states_file << x[index[0]][i] << " ";
+            parameters_file << x[index[0]][i] << " ";
         }
-        parameters_file << x[index[0]][i] << " ";
     }
 
     states_file << "\n";

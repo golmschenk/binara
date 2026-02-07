@@ -1,4 +1,4 @@
-# Guide for developers
+# Guide for building
 
 ## Setting up the developer environment
 
@@ -32,13 +32,13 @@ In the future, whenever working on developing `binara`, activate the existing en
 To build, first configure the build with:
 
 ```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
 Then build with:
 
 ```sh
-cmake --build build --config Debug
+cmake --build build --config RelWithDebInfo
 ```
 
 This will produce the `binara_exe` executable inside the `build` directory. Just the second build command is required for subsequent builds, and will only rebuild changed components.
@@ -53,4 +53,4 @@ To build an optimized version, first clean the build, then run the configure and
 
 ## Adding source files
 
-The file specifying which source files to compile, `CMakeLists.txt`, may look somewhat confusing to those unfamiliar to CMake, especially due to the complexity added by importing remote GitHub dependencies, using multiple source languages, and building both a Python library and the main binary executable. For Fortran developers, the main piece you will likely need to change is to add additional source files to be compiled. In most cases, you should add your new source files to the `BINARA_EXE_AND_EXT_SHARED_SOURCES` variable as other files can be seen being added.
+The file specifying which source files to compile, `CMakeLists.txt`, may look somewhat confusing to those unfamiliar to CMake, especially due to the complexity added by importing remote GitHub dependencies, using multiple source languages, and building both a Python library and the main binary executable. For C++ developers, the main piece you will likely need to change is to add additional source files to be compiled. In most cases, you should add your new source files to the `BINARA_EXE_AND_EXT_SHARED_SOURCES` variable as other files can be seen being added.
