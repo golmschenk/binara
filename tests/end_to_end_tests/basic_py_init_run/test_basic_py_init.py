@@ -13,14 +13,14 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 def test_basic_init_data():
     working_directory = Path(__file__).parent
     with use_working_directory(working_directory):
-        data_directory = working_directory.joinpath('data')
-        if data_directory.exists():
-            shutil.rmtree(data_directory)
-        shutil.copytree(working_directory.joinpath('template_starting_data_directory'), data_directory)
+        input_data_directory = working_directory.joinpath('input_data')
+        if input_data_directory.exists():
+            shutil.rmtree(input_data_directory)
+        shutil.copytree(working_directory.joinpath('template_starting_input_data_directory'), input_data_directory)
         write_mcmc_data(tic_id=220052771, sector=6)
-        verify_directories_match(data_directory, working_directory.joinpath('expected_resulting_data_directory'))
-        if data_directory.exists():
+        verify_directories_match(input_data_directory, working_directory.joinpath('expected_resulting_input_data_directory'))
+        if input_data_directory.exists():
             try:
-                shutil.rmtree(data_directory)
+                shutil.rmtree(input_data_directory)
             except PermissionError:  # In the Windows tests, this can sporadically fail, but it's fine to skip it.
                 pass

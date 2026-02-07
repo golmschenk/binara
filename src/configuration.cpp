@@ -103,9 +103,7 @@ bool Configuration::initialize_should_use_secular_drift(const toml::table& toml_
     return should_secular_drift;
 }
 
-std::filesystem::path Configuration::initialize_session_directory_path(
-    const int64_t tic_id,
-    const int32_t sector)
+std::filesystem::path Configuration::initialize_session_directory_path(const int64_t tic_id, const int32_t sector) const
 {
     std::filesystem::path sessions_root_directory{"sessions"};
     auto session_name = std::format("tic_id_{}_sector_{}", tic_id, sector);
@@ -123,17 +121,17 @@ std::filesystem::path Configuration::initialize_session_directory_path(
     return session_directory;
 }
 
-std::filesystem::path Configuration::initialize_data_directory_path(
+std::filesystem::path Configuration::initialize_input_data_directory_path(
     const int64_t tic_id,
     const int32_t sector)
 {
-    std::filesystem::path data_directory{std::format("data/tic_id_{}_sector_{}", tic_id, sector)};
-    if (!std::filesystem::exists(data_directory))
+    std::filesystem::path input_data_directory{std::format("input_data/tic_id_{}_sector_{}", tic_id, sector)};
+    if (!std::filesystem::exists(input_data_directory))
     {
-        std::cerr << "Expected data directory `" << data_directory << "` not found. Halting program.";
+        std::cerr << "Expected input data directory `" << input_data_directory << "` not found. Halting program.";
         exit(104);
     }
-    return data_directory;
+    return input_data_directory;
 }
 
 std::tuple<std::filesystem::path, std::filesystem::path, std::filesystem::path, std::filesystem::path,
@@ -181,11 +179,11 @@ Configuration::Configuration(const int64_t tic_id, const int32_t sector)
 
     number_of_threads_ = initialize_number_of_threads(toml_configuration_table);
     session_directory_path_ = initialize_session_directory_path(tic_id, sector);
-    data_directory_path_ = initialize_data_directory_path(tic_id, sector);
+    input_data_directory_path_ = initialize_input_data_directory_path(tic_id, sector);
     std::tie(folded_observed_light_curve_path_, magnitudes_and_colors_path_, py_initialize_path_, states_path_,
              folded_observed_and_and_model_light_curves_path_,
              parameters_path_) = copy_input_data_and_initialize_file_paths(
-        data_directory_path_, session_directory_path_);
+        input_data_directory_path_, session_directory_path_);
     should_use_g_magnitude_ = initialize_should_use_g_magnitude(toml_configuration_table);
     should_use_colors_ = initialize_should_use_colors(toml_configuration_table);
     should_use_secular_drift_ = initialize_should_use_secular_drift(toml_configuration_table);

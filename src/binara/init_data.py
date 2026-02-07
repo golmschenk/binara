@@ -27,7 +27,7 @@ def load_tic_data(tic_id: int, sector: int = -1):
         Period: float
     """
     # Load lightcurve data
-    data_directory = Path('data')
+    data_directory = Path('input_data')
     target_directory = data_directory.joinpath(f'tic_id_{tic_id}_sector_{sector}')
     folded_light_curve_path = target_directory.joinpath('folded_observed_light_curve.txt')
     header = np.genfromtxt(folded_light_curve_path, max_rows=1)
@@ -184,7 +184,7 @@ def write_mcmc_data(tic_id: int, sector: int = -1, run_id: int = 1, secular_drif
         return None
     constants, parameter_info, arrays, misc = set_mcmc_pars(
         tic_id=tic_id, sector=sector, secular_drift_sources=secular_drift_sources)
-    data_directory = Path('data')
+    data_directory = Path('input_data')
     target_directory = data_directory.joinpath(f'tic_id_{tic_id}_sector_{sector}')
     py_initialize_path = target_directory.joinpath('py_initialize.txt')
     # .... write the data ...
