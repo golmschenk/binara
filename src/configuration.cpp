@@ -83,6 +83,12 @@ bool Configuration::initialize_should_use_colors(const toml::table& toml_configu
     return should_use_colors;
 }
 
+bool Configuration::initialize_should_use_secular_drift(const toml::table& toml_configuration_table)
+{
+    bool should_secular_drift = toml_configuration_table.at_path("modeling.use_secular_drift").value_or(false);
+    return should_secular_drift;
+}
+
 std::filesystem::path Configuration::initialize_session_directory_path(
     const toml::table& toml_configuration_table,
     const int64_t tic_id,
@@ -166,6 +172,7 @@ Configuration::Configuration(const int64_t tic_id, const int32_t sector)
         data_directory_path_, session_directory_path_);
     should_use_g_magnitude_ = initialize_should_use_g_magnitude(toml_configuration_table);
     should_use_colors_ = initialize_should_use_colors(toml_configuration_table);
+    should_use_secular_drift_ = initialize_should_use_secular_drift(toml_configuration_table);
 }
 
 bool Configuration::prefix_session_directory_with_datetime() const
@@ -211,6 +218,11 @@ bool Configuration::should_use_g_magnitude() const
 bool Configuration::should_use_colors() const
 {
     return should_use_colors_;
+}
+
+bool Configuration::should_use_secular_drift() const
+{
+    return should_use_secular_drift_;
 }
 
 void initialize_configuration(const int64_t tic_id, const int32_t sector)
