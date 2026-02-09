@@ -56,6 +56,7 @@ void Run_MCMC(const int tic_id, const int sector)
 
     const double GAMMA = 2.388 / sqrt(2. * (double)NPARS);
 
+    double best_recorded_log_likelihood = std::numeric_limits<double>::lowest();
     double* logLx = new double[NCHAINS];
     double* logPx = new double[NCHAINS];
     double* temp = new double[NCHAINS];
@@ -340,7 +341,7 @@ void Run_MCMC(const int tic_id, const int sector)
         {
             Log_Data(iter, x, logLx, index,
                      points_per_sector, times, fluxes,
-                     errors, NPARS, NSECTORS, NCHAINS);
+                     errors, NPARS, NSECTORS, NCHAINS, best_recorded_log_likelihood);
         }
     }
 
@@ -518,22 +519,14 @@ void Ptmcmc(int* index, double temp[], double logL[], double logP[], const int N
 // Log the lightcurve file and the data
 void Log_Data(int iter, double** x, double* logLx, int* index,
               long int* points_per_sector, double all_sector_phases[], double all_sector_fluxes[],
-              double all_sector_uncertainties[], const int NPARS, const int NSECTORS, const int NCHAINS)
+              double all_sector_uncertainties[], const int NPARS, const int NSECTORS, const int NCHAINS, double&
+              best_recorded_log_likelihood)
 {
     std::filesystem::path states_path = get_configuration().get_states_path();
-    std::filesystem::path light_curves_path = get_configuration().get_folded_observed_and_model_light_curves_path();
-    std::filesystem::path parameters_path = get_configuration().get_parameters_path();
-
     std::ofstream states_file(states_path, std::ios::app);
-    std::ofstream light_curves_file(light_curves_path);
-    std::ofstream parameters_file(parameters_path);
-
-    // Set precision for scientific notation
     states_file << std::scientific << std::setprecision(12);
-    light_curves_file << std::scientific << std::setprecision(5);
-    parameters_file << std::scientific << std::setprecision(12);
 
-    // Print parameter chains
+    // Append to the states file.
     states_file << iter << " " << logLx[index[0]] << " ";
     for (int i = 0; i < NPARS; i++)
     {
@@ -541,91 +534,116 @@ void Log_Data(int iter, double** x, double* logLx, int* index,
         if ((i == 4) & (get_configuration().should_use_secular_drift() != 1))
         {
             states_file << acos(x[index[0]][i]) << " ";
-            parameters_file << acos(x[index[0]][i]) << " ";
         }
         else
         {
             states_file << x[index[0]][i] << " ";
-            parameters_file << x[index[0]][i] << " ";
         }
     }
-
     states_file << "\n";
 
-    // Print the lightcurve for each sector
-    const int npars_sector = npars_common + npars_unique;
-    double* sector_params = new double[npars_sector];
-    int skip_samples = 0;
-
-    for (int i = 0; i < npars_common; i++)
+    if (best_recorded_log_likelihood < logLx[index[0]])
     {
-        sector_params[i] = x[index[0]][i];
-    }
+        best_recorded_log_likelihood = logLx[index[0]];
 
-    for (int sector_number = 0; sector_number < NSECTORS; sector_number++)
-    {
-        // Now assign the unique parameters
-        for (int i = 0; i < npars_unique; i++)
+        // Overwrite the parameters file.
+        std::filesystem::path parameters_path = get_configuration().get_parameters_path();
+        std::ofstream parameters_file(parameters_path);
+        parameters_file << std::scientific << std::setprecision(12);
+        states_file << iter << " " << logLx[index[0]] << " ";
+        for (int i = 0; i < NPARS; i++)
         {
-            sector_params[npars_common + i] = x[index[0]][npars_common +
-                npars_unique * sector_number +
-                i];
-        }
-
-        if (get_configuration().should_use_secular_drift() == 1)
-        {
-            double* __temp = new double[npars_sector];
-            // Current order: logM1, logM2, logP, sigma_r1, sigma_r2, mu_1, tau_1, mu_2, tau_2, alpha_ref_1, alpha_ref_2
-            //                alpha_t1, alpha_t2, (e, i, omega, t0, blending, flux_tune, noise_resc)_j
-            __temp[0] = sector_params[0];
-            __temp[1] = sector_params[1];
-            __temp[2] = sector_params[2];
-            __temp[3] = sector_params[15];
-            __temp[4] = sector_params[16];
-            __temp[5] = sector_params[17];
-            __temp[6] = sector_params[18];
-            for (int ii = 7; ii <= 18; ii++)
+            // write inc not cos(inc)
+            if ((i == 4) & (get_configuration().should_use_secular_drift() != 1))
             {
-                __temp[ii] = sector_params[ii - 4];
+                parameters_file << acos(x[index[0]][i]) << " ";
             }
-            // And now move back to __temp
-            for (int ii = 0; ii < npars_sector; ii++)
+            else
             {
-                sector_params[ii] = __temp[ii];
+                parameters_file << x[index[0]][i] << " ";
             }
-            delete[] __temp;
         }
+        states_file << "\n";
 
-        const int Npoints_in_sector = points_per_sector[sector_number];
-        double* sector_flux = new double[Npoints_in_sector];
-        double* sector_phase = new double[Npoints_in_sector];
-        double* sector_uncetainties = new double[Npoints_in_sector];
-        double* sector_template = new double[Npoints_in_sector];
+        // Overwrite the light curve file.
+        std::filesystem::path light_curves_path = get_configuration().get_folded_observed_and_model_light_curves_path();
+        std::ofstream light_curves_file(light_curves_path);
+        light_curves_file << std::scientific << std::setprecision(5);
 
-        for (int idx = 0; idx < Npoints_in_sector; idx++)
+        const int npars_sector = npars_common + npars_unique;
+        double* sector_params = new double[npars_sector];
+        int skip_samples = 0;
+
+        for (int i = 0; i < npars_common; i++)
         {
-            sector_flux[idx] = all_sector_fluxes[skip_samples + idx];
-            sector_phase[idx] = all_sector_phases[skip_samples + idx];
-            sector_uncetainties[idx] = all_sector_uncertainties[skip_samples + idx];
+            sector_params[i] = x[index[0]][i];
         }
 
-        Calculate_Lightcurve(sector_phase, Npoints_in_sector, sector_params,
-                             sector_template);
-        for (int i = 0; i < Npoints_in_sector; i++)
+        for (int sector_number = 0; sector_number < NSECTORS; sector_number++)
         {
-            light_curves_file << sector_phase[i] << " " << sector_flux[i] << " "
-                              << sector_template[i] << " " << sector_uncetainties[i] << "\n";
+            // Now assign the unique parameters
+            for (int i = 0; i < npars_unique; i++)
+            {
+                sector_params[npars_common + i] = x[index[0]][npars_common +
+                    npars_unique * sector_number +
+                    i];
+            }
+
+            if (get_configuration().should_use_secular_drift() == 1)
+            {
+                double* __temp = new double[npars_sector];
+                // Current order: logM1, logM2, logP, sigma_r1, sigma_r2, mu_1, tau_1, mu_2, tau_2, alpha_ref_1, alpha_ref_2
+                //                alpha_t1, alpha_t2, (e, i, omega, t0, blending, flux_tune, noise_resc)_j
+                __temp[0] = sector_params[0];
+                __temp[1] = sector_params[1];
+                __temp[2] = sector_params[2];
+                __temp[3] = sector_params[15];
+                __temp[4] = sector_params[16];
+                __temp[5] = sector_params[17];
+                __temp[6] = sector_params[18];
+                for (int ii = 7; ii <= 18; ii++)
+                {
+                    __temp[ii] = sector_params[ii - 4];
+                }
+                // And now move back to __temp
+                for (int ii = 0; ii < npars_sector; ii++)
+                {
+                    sector_params[ii] = __temp[ii];
+                }
+                delete[] __temp;
+            }
+
+            const int Npoints_in_sector = points_per_sector[sector_number];
+            double* sector_flux = new double[Npoints_in_sector];
+            double* sector_phase = new double[Npoints_in_sector];
+            double* sector_uncetainties = new double[Npoints_in_sector];
+            double* sector_template = new double[Npoints_in_sector];
+
+            for (int idx = 0; idx < Npoints_in_sector; idx++)
+            {
+                sector_flux[idx] = all_sector_fluxes[skip_samples + idx];
+                sector_phase[idx] = all_sector_phases[skip_samples + idx];
+                sector_uncetainties[idx] = all_sector_uncertainties[skip_samples + idx];
+            }
+
+            Calculate_Lightcurve(sector_phase, Npoints_in_sector, sector_params,
+                                 sector_template);
+            for (int i = 0; i < Npoints_in_sector; i++)
+            {
+                light_curves_file << sector_phase[i] << " " << sector_flux[i] << " "
+                                  << sector_template[i] << " " << sector_uncetainties[i] << "\n";
+            }
+
+            delete[] sector_flux;
+            delete[] sector_phase;
+            delete[] sector_uncetainties;
+            delete[] sector_template;
+
+            skip_samples += Npoints_in_sector;
         }
 
-        delete[] sector_flux;
-        delete[] sector_phase;
-        delete[] sector_uncetainties;
-        delete[] sector_template;
-
-        skip_samples += Npoints_in_sector;
+        delete[] sector_params;
     }
-
-    delete[] sector_params;
 }
 
 // Read parameters from the existing paramters file

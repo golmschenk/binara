@@ -30,7 +30,8 @@ void Run_MCMC(int, int);
 
 void Log_Data(int iter, double** x, double* logLx, int* index,
               long int* points_per_sector, double all_sector_phases[], double all_sector_fluxes[],
-              double all_sector_uncertainties[], const int NPARS, const int NSECTORS, const int NCHAINS);
+              double all_sector_uncertainties[], const int NPARS, const int NSECTORS, const int NCHAINS, double&
+              best_recorded_log_likelihood);
 
 void Read_Parameters(double** X, const int NPARS, const int NCHAINS);
 #endif
