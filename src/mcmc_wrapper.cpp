@@ -550,7 +550,6 @@ void Log_Data(int iter, double** x, double* logLx, int* index,
         std::filesystem::path parameters_path = get_configuration().get_parameters_path();
         std::ofstream parameters_file(parameters_path);
         parameters_file << std::scientific << std::setprecision(12);
-        states_file << iter << " " << logLx[index[0]] << " ";
         for (int i = 0; i < NPARS; i++)
         {
             // write inc not cos(inc)
@@ -563,7 +562,6 @@ void Log_Data(int iter, double** x, double* logLx, int* index,
                 parameters_file << x[index[0]][i] << " ";
             }
         }
-        states_file << "\n";
 
         // Overwrite the light curve file.
         std::filesystem::path light_curves_path = get_configuration().get_folded_observed_and_model_light_curves_path();
