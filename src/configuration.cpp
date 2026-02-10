@@ -1,4 +1,5 @@
 #include "configuration.h"
+#include "eclipse_method_enum.h"
 
 #include <iostream>
 #include <memory>
@@ -20,6 +21,7 @@ namespace
         "modeling.use_g_magnitude",
         "modeling.use_colors",
         "modeling.use_secular_drift",
+        "modeling.eclipse_method",
     };
 
     void validate_table(const toml::table& table, const toml::path& path)
@@ -42,7 +44,7 @@ namespace
             }
             else
             {
-                if (!allowed_paths.count(subpath.str()))
+                if (!allowed_paths.contains(subpath.str()))
                 {
                     std::cerr << "Unexpected configuration option in `" << subpath.str() <<
                         "` file: `" << subpath.str() << "`. Halting program.\n";
@@ -87,20 +89,46 @@ int32_t Configuration::initialize_number_of_threads(const toml::table& toml_conf
 
 bool Configuration::initialize_should_use_g_magnitude(const toml::table& toml_configuration_table)
 {
-    bool should_use_g_magnitude = toml_configuration_table.at_path("modeling.use_g_magnitude").value_or(true);
+    const bool should_use_g_magnitude = toml_configuration_table.at_path("modeling.use_g_magnitude").value_or(true);
     return should_use_g_magnitude;
 }
 
 bool Configuration::initialize_should_use_colors(const toml::table& toml_configuration_table)
 {
-    bool should_use_colors = toml_configuration_table.at_path("modeling.use_colors").value_or(false);
+    const bool should_use_colors = toml_configuration_table.at_path("modeling.use_colors").value_or(false);
     return should_use_colors;
 }
 
 bool Configuration::initialize_should_use_secular_drift(const toml::table& toml_configuration_table)
 {
-    bool should_secular_drift = toml_configuration_table.at_path("modeling.use_secular_drift").value_or(false);
+    const bool should_secular_drift = toml_configuration_table.at_path("modeling.use_secular_drift").value_or(false);
     return should_secular_drift;
+}
+
+EclipseMethod Configuration::initialize_eclipse_method(const toml::table& toml_configuration_table)
+{
+    const std::string eclipse_method_string = std::string(toml_configuration_table.at_path(
+        "modeling.eclipse_method").value_or("limb_darkening"));
+    EclipseMethod eclipse_method;
+    if (eclipse_method_string == std::string_view("off"))
+    {
+        eclipse_method = EclipseMethod::OFF;
+    }
+    else if (eclipse_method_string == std::string_view("regular"))
+    {
+        eclipse_method = EclipseMethod::REGULAR;
+    }
+    else if (eclipse_method_string == std::string_view("limb_darkening"))
+    {
+        eclipse_method = EclipseMethod::LIMB_DARKENING;
+    }
+    else
+    {
+        std::cerr << "Invalid eclipse method `" << eclipse_method_string
+            << "` specified in configuration.toml. Halting program.";
+        exit(106);
+    }
+    return eclipse_method;
 }
 
 std::filesystem::path Configuration::initialize_session_directory_path(const int64_t tic_id, const int32_t sector) const
@@ -187,6 +215,7 @@ Configuration::Configuration(const int64_t tic_id, const int32_t sector)
     should_use_g_magnitude_ = initialize_should_use_g_magnitude(toml_configuration_table);
     should_use_colors_ = initialize_should_use_colors(toml_configuration_table);
     should_use_secular_drift_ = initialize_should_use_secular_drift(toml_configuration_table);
+    eclipsing_method_ = initialize_eclipse_method(toml_configuration_table);
 }
 
 bool Configuration::prefix_session_directory_with_datetime() const
@@ -237,6 +266,11 @@ bool Configuration::should_use_colors() const
 bool Configuration::should_use_secular_drift() const
 {
     return should_use_secular_drift_;
+}
+
+EclipseMethod Configuration::eclipsing_method() const
+{
+    return eclipsing_method_;
 }
 
 void initialize_configuration(const int64_t tic_id, const int32_t sector)

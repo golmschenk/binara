@@ -1,6 +1,8 @@
 #pragma once
 
 #include <filesystem>
+
+#include "eclipse_method_enum.h"
 #include "toml++/toml.hpp"
 
 class Configuration
@@ -16,12 +18,14 @@ public:
     [[nodiscard]] bool should_use_g_magnitude() const;
     [[nodiscard]] bool should_use_colors() const;
     [[nodiscard]] bool should_use_secular_drift() const;
+    [[nodiscard]] EclipseMethod eclipsing_method() const;
 
 private:
     [[nodiscard]] static int32_t initialize_number_of_threads(const toml::table& toml_configuration_table);
     [[nodiscard]] static bool initialize_should_use_g_magnitude(const toml::table& toml_configuration_table);
     [[nodiscard]] static bool initialize_should_use_colors(const toml::table& toml_configuration_table);
     [[nodiscard]] static bool initialize_should_use_secular_drift(const toml::table& toml_configuration_table);
+    [[nodiscard]] static EclipseMethod initialize_eclipse_method(const toml::table& toml_configuration_table);
     [[nodiscard]] std::filesystem::path initialize_session_directory_path(int64_t tic_id, int32_t sector) const;
     [[nodiscard]] static std::filesystem::path initialize_input_data_directory_path(int64_t tic_id, int32_t sector);
     static std::tuple<std::filesystem::path, std::filesystem::path, std::filesystem::path, std::filesystem::path,
@@ -34,6 +38,7 @@ private:
     bool should_use_g_magnitude_;
     bool should_use_colors_;
     bool should_use_secular_drift_;
+    EclipseMethod eclipsing_method_;
     int32_t number_of_threads_;
     std::filesystem::path session_directory_path_;
     std::filesystem::path input_data_directory_path_;

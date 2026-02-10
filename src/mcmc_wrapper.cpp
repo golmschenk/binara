@@ -624,8 +624,8 @@ void Log_Data(int iter, double** x, double* logLx, int* index,
                 sector_uncetainties[idx] = all_sector_uncertainties[skip_samples + idx];
             }
 
-            Calculate_Lightcurve(sector_phase, Npoints_in_sector, sector_params,
-                                 sector_template);
+            Calculate_Lightcurve(sector_phase, Npoints_in_sector, sector_params, sector_template,
+                get_configuration().eclipsing_method());
             for (int i = 0; i < Npoints_in_sector; i++)
             {
                 light_curves_file << sector_phase[i] << " " << sector_flux[i] << " "

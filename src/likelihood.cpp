@@ -634,9 +634,9 @@ Parameters:
 
 */
 void Calculate_Lightcurve(double* times, size_t Nt, double* pars,
-                          double* template_)
+                          double* template_, const EclipseMethod eclipse_method)
 {
-    // Extract the paramters
+    // Extract the parameters
     double logM1 = pars[0];
     double logM2 = pars[1];
     // Period in seconds
@@ -745,23 +745,31 @@ void Calculate_Lightcurve(double* times, size_t Nt, double* pars,
 
         Amag2[i] = Norm2 * (1 + beam2 + ellip2 + ref2);
 
-        // Eclipse contribution (delta F = F * (ecl area / tot area))
-        // double area = Eclipse_Area(R1, R2, d_arr[i]);
-        // if (Z2_arr[i] > Z1_arr[i]) Amag2[i] -= area * Norm2 / (PI * SQR(R2));
-        // else if (Z2_arr[i] < Z1_arr[i]) Amag1[i] -= area * Norm1 / (PI * SQR(R1));
-
-        // Eclipse with Limb-Darkening
-        double area;
-
-        if (Z2_arr[i] < Z1_arr[i])
+        if (eclipse_method == EclipseMethod::OFF)
         {
-            area = eclipse_area_limb_darkening(R1, R2, d_arr[i], mu_1);
-            Amag1[i] -= area * Norm1 / (PI * SQR(R1));
         }
-        if (Z2_arr[i] > Z1_arr[i])
+        else if (eclipse_method == EclipseMethod::REGULAR)
         {
-            area = eclipse_area_limb_darkening(R2, R1, d_arr[i], mu_2);
-            Amag2[i] -= area * Norm2 / (PI * SQR(R2));
+            // Eclipse contribution (delta F = F * (ecl area / tot area))
+            double area = Eclipse_Area(R1, R2, d_arr[i]);
+            if (Z2_arr[i] > Z1_arr[i]) Amag2[i] -= area * Norm2 / (PI * SQR(R2));
+            else if (Z2_arr[i] < Z1_arr[i]) Amag1[i] -= area * Norm1 / (PI * SQR(R1));
+        }
+        else if (eclipse_method == EclipseMethod::LIMB_DARKENING)
+        {
+            // Eclipse with Limb-Darkening
+            double area;
+
+            if (Z2_arr[i] < Z1_arr[i])
+            {
+                area = eclipse_area_limb_darkening(R1, R2, d_arr[i], mu_1);
+                Amag1[i] -= area * Norm1 / (PI * SQR(R1));
+            }
+            if (Z2_arr[i] > Z1_arr[i])
+            {
+                area = eclipse_area_limb_darkening(R2, R1, d_arr[i], mu_2);
+                Amag2[i] -= area * Norm2 / (PI * SQR(R2));
+            }
         }
 
         // Full lightcurve
@@ -991,7 +999,7 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
 
         // Now calculate the lightcurve for the sector
         Calculate_Lightcurve(sector_phase, Npoints_in_sector, sector_params,
-                             sector_template);
+                             sector_template, get_configuration().eclipsing_method());
 
         // Finally compute the chi_squared
         double chi2_local = 0.;
