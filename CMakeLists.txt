@@ -38,7 +38,6 @@ set(BINARA_EXE_AND_EXT_SHARED_SOURCES
         src/random_generator.h
         src/configuration.cpp
         src/configuration.h
-        src/eclipsing_method_enum.cpp
         src/eclipse_method_enum.h
 )
 

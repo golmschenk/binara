@@ -2,13 +2,13 @@ import os
 
 import numpy as np
 import pytest
+from binara.binara_ext import EclipseMethod
 
 from binara import internal_calculate_light_curve
 
 # Python and the extension library each seem to have their own copy of OpenMP. This allows that during tests.
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-@pytest.mark.skip
 def test_calculate_light_curve():
     # Parameters and sample light curve taken from a run of Gioula Kalapotharakos for TIC ID 110602878 sector 34.
     model_parameters = np.array([
@@ -57,5 +57,6 @@ def test_calculate_light_curve():
         0.9997612880, 0.9997674603, 0.9997739335, 0.9997807249, 0.9997878552, 0.9997953493, 0.9998032369, 0.9998115535,
         0.9998203422, 0.9934302556, 0.9689839406, 0.9423796188, 0.9365054447, 0.9365176270, 0.9365308114, 0.9427980235,
         0.9695035218, 0.9937965994, 0.9999534436, 0.9999749530, 0.9999991653, 1.0000266040], dtype=np.float64)
-    model_fluxes = internal_calculate_light_curve(model_phases, model_parameters)
+    model_fluxes = internal_calculate_light_curve(model_phases, model_parameters,
+                                                  eclipse_method=EclipseMethod.REGULAR)
     assert np.allclose(model_fluxes, expected_model_fluxes)

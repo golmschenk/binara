@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+from binara.binara_ext import EclipseMethod
 
 from binara import internal_calculate_light_curve
 
@@ -53,5 +54,6 @@ def test_calculate_light_curve():
         0.99974979, 0.9997554, 0.99976129, 0.99976746, 0.99977393, 0.99978072, 0.99978786, 0.99979535, 0.99980324,
         0.99981155, 0.99982034, 0.99436095, 0.97074595, 0.94210245, 0.93188027, 0.929931, 0.93184467, 0.94251713,
         0.9712084, 0.99468027, 0.99995344, 0.99997495, 0.99999917, 1.0000266], dtype=np.float64)
-    model_fluxes = internal_calculate_light_curve(model_phases, model_parameters)
+    model_fluxes = internal_calculate_light_curve(model_phases, model_parameters,
+                                                  eclipse_method=EclipseMethod.LIMB_DARKENING)
     assert np.allclose(model_fluxes, expected_model_fluxes)

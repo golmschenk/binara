@@ -10,22 +10,28 @@ namespace nb = nanobind;
 
 nb::ndarray<double, nb::numpy, nb::ndim<1>> internal_calculate_light_curve(
     const nb::ndarray<double>& times,
-    const nb::ndarray<double>& parameters
+    const nb::ndarray<double>& parameters,
+    const EclipseMethod eclipse_method
 )
 {
     const size_t times_size = times.size();
     auto* model_fluxes = new double[times_size];
     // Create the Python ownership object.
     nb::capsule owner(model_fluxes, [](void* p) noexcept { delete[] static_cast<double*>(p); });
-    Calculate_Lightcurve(times.data(), times_size, parameters.data(), model_fluxes);
+    Calculate_Lightcurve(times.data(), times_size, parameters.data(), model_fluxes, eclipse_method);
     const size_t model_fluxes_shape[1] = {times_size};
     return {model_fluxes, 1, model_fluxes_shape, owner};
 }
 
 NB_MODULE(binara_ext, module)
 {
+    nb::enum_<EclipseMethod>(module, "EclipseMethod")
+        .value("OFF", EclipseMethod::OFF)
+        .value("REGULAR", EclipseMethod::REGULAR)
+        .value("LIMB_DARKENING", EclipseMethod::LIMB_DARKENING);
+
     module.def("internal_run_mcmc", &Run_MCMC);
     module.def("internal_calculate_light_curve", &internal_calculate_light_curve,
-               nb::arg("times"), nb::arg("parameters"));
+               nb::arg("times"), nb::arg("parameters"), nb::arg("eclipse_method"));
     module.def("internal_calculate_log_likelihood", &Log_Likelihood);
 }
