@@ -9,7 +9,7 @@ from tests.data_directory_manipulations import verify_directories_match
 from tests.working_directory_context import use_working_directory
 
 
-def test_can_run_mcmc():
+def test_can_run_mcmc_multi_sector():
     working_directory = Path(__file__).parent
     with use_working_directory(working_directory):
         input_data_directory = working_directory.joinpath('input_data')
@@ -19,7 +19,7 @@ def test_can_run_mcmc():
         if sessions_directory.exists():
             shutil.rmtree(sessions_directory)
         shutil.copytree(working_directory.joinpath('template_starting_input_data_directory'), input_data_directory)
-        binara.internal_run_mcmc(220052771, 6)
+        binara.internal_run_mcmc(150284425, -1)
         verify_directories_match(sessions_directory,
                                  working_directory.joinpath('expected_resulting_sessions_directory'))
         if input_data_directory.exists():

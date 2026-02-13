@@ -1,5 +1,7 @@
-# How to run binara
+# How to run
 ## File structure
+The inputs and outputs to binara primarily live in two directories: `data` and `sessions`. `data` contains  
+
 ### Light curve files
 There are two folders:
 - #### folded_lightcurves

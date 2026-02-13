@@ -3,8 +3,17 @@ channels:
   - conda-forge
 dependencies:
   - python=3.11
-  - cxx-compiler>=1.7
+  - clang>=21.1.0
+  - clangxx>=21.1.0
+  - clang-tools>=21.1.0
+  - llvm-openmp>=21.1.0
   - boost>=1.83
+  - cmake>=2.28
+  - ninja>=1.11
+  - pip
   - pip:
-      - cmake>=2.28
-      - ninja>=1.11
+      - nanobind
+      - pytest
+      - bokeh
+      - numpy
+      - pandas
