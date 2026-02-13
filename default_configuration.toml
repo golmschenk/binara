@@ -1,0 +1,11 @@
+[system]
+number_of_threads = -1
+
+[output]
+prefix_session_directory_with_datetime = true
+
+[modeling]
+use_g_magnitude = true
+use_colors = false
+use_secular_drift = false
+eclipse_method = 'limb_darkening'
