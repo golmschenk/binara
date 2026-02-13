@@ -10,7 +10,7 @@ void Run_MCMC(const int tic, const int sector, const int run_id, const int gmag_
               const int secular_drift_flag)
 {
   check_for_and_handle_python_interrupt();
-  //omp_set_num_threads(1);
+  omp_set_num_threads(10);
   // Load the MCMC data
   long int buffer_size;
   int py_niter, py_nchains, py_npars, py_nsectors, py_npast;
@@ -436,7 +436,7 @@ void Differential_Evolution_Proposal(double *x, double **history, double *y, con
   int n;
   int a;
   int b;
-  int c = 0;
+  double c = get_normal_random_value(random_generators_for_chains[chain_number]);
   double *dx = malloc(NPARS * sizeof(double));
   double *epsilon = malloc(NPARS * sizeof(double));
 
