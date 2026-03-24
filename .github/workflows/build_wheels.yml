@@ -27,10 +27,10 @@ jobs:
           brew install llvm
           brew install libomp
           brew install boost
-          # Add Homebrew paths to path.
           echo "PATH=$(brew --prefix)/bin:$(brew --prefix)/opt/llvm/bin:$(brew --prefix)/opt/libomp/bin:$PATH" >> $GITHUB_ENV
           echo "CC=$(brew --prefix)/opt/llvm/bin/clang" >> $GITHUB_ENV
           echo "CXX=$(brew --prefix)/opt/llvm/bin/clang++" >> $GITHUB_ENV
+          echo "SDKROOT=$(xcrun --sdk macosx --show-sdk-path)" >> $GITHUB_ENV
 
       - name: build_wheels
         uses: pypa/cibuildwheel@v2.22.0
