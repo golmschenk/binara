@@ -42,6 +42,7 @@ jobs:
             LDFLAGS="-L$(brew --prefix llvm)/lib/c++"
           CIBW_BEFORE_BUILD_LINUX: echo $BOOST_ROOT
           CIBW_BEFORE_ALL_LINUX: >
+            yum install -y gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ &&
             yum install -y wget &&
             cd / &&
             mkdir boost &&
