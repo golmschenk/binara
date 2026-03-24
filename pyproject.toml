@@ -21,7 +21,7 @@ wheel.py-api = "cp312"
 skip = ["pp*", "cp36-*", "cp37-*", "cp38-*", "*_i686", "*musllinux*", "*-win32"]
 build-verbosity = "3"
 test-command = "pytest {project}/tests"
-test-requires = "pytest"
+test-requires = ["pytest", "numpy"]
 
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.14"
