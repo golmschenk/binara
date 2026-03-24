@@ -1,7 +1,8 @@
 # How to run
 ## File structure
-The inputs and outputs to binara primarily live in two directories: `data` and `sessions`. `data` contains  
+The inputs and outputs to binara primarily live in two directories: `input_data` and `sessions`. `input_data` contains the input data about the target including the folded light curve, magnitude information, and MCMC configuration. The `sessions` directory will contain the output from MCMC run.  
 
+## Old file structure
 ### Light curve files
 There are two folders:
 - #### folded_lightcurves
