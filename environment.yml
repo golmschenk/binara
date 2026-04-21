@@ -17,3 +17,4 @@ dependencies:
       - bokeh
       - numpy
       - pandas
+      - xarray

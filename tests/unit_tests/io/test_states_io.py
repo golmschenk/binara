@@ -1,10 +1,12 @@
 from io import StringIO
 
 import numpy as np
+import pandas as pd
 import pytest
+import xarray
 
 from binara.internal.io.states import load_states_data_frame_from_states_file, load_log_likelihoods_from_states_file, \
-    load_iterations_from_states_file
+    load_iterations_from_states_file, convert_from_states_pandas_data_frame_to_xarray_dataset
 
 
 def test_states_io_read():
@@ -40,3 +42,28 @@ def test_iterations_extraction_from_states_io_read():
     states_string_io = StringIO(states_string)
     log_likelihoods = load_iterations_from_states_file(states_string_io)
     assert np.allclose(log_likelihoods, [0, 100, 200])
+
+
+def test_from_states_pandas_data_frame_to_xarray_dataset():
+    data_frame = pd.DataFrame({
+        'iteration': [0, 1, 2],
+        'log_likelihood': [-5000.5, -4000.4, -3000.3],
+        'parameter0': [0.0, 10.0, 20.0],
+        'parameter1': [0.0, 100.0, 200.0],
+    })
+    iterations = np.array([0, 1, 2], dtype=np.int32)
+    parameter_indexes = np.array([0, 1], dtype=np.int32)
+    parameters = np.array([[0.0, 0.0], [10.0, 100.0], [20.0, 200.0]], dtype=np.float32)
+    log_likelihoods = np.array([-5000.5, -4000.4, -3000.3], dtype=np.float32)
+    expected_dataset = xarray.Dataset(
+        data_vars=dict(
+            parameter=(["iteration", "parameter_index"], parameters),
+            log_likelihood=(["iteration"], log_likelihoods),
+        ),
+        coords=dict(
+            iterations=iterations,
+            parameter_index=parameter_indexes,
+        ),
+    )
+    dataset = convert_from_states_pandas_data_frame_to_xarray_dataset(data_frame)
+    assert dataset.equals(expected_dataset)
