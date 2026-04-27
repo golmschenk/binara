@@ -22,13 +22,19 @@ def load_states_data_frame_from_states_file(file_handle: Path | StringIO) -> pd.
 
 
 def convert_from_states_pandas_data_frame_to_xarray_dataset(data_frame: pd.DataFrame) -> xarray.Dataset:
+    """
+    Converts a Pandas data frame of MCMC states to an Xarray dataset.
+
+    :param data_frame: The Pandas data frame.
+    :return: The Xarray dataset.
+    """
     iterations = data_frame['iteration'].to_numpy(dtype=np.int32)
     log_likelihoods = data_frame['log_likelihood'].to_numpy(dtype=np.float32)
     parameters = data_frame.drop(['iteration', 'log_likelihood'], axis='columns').to_numpy(dtype=np.float32)
     dataset = xarray.Dataset(
         data_vars=dict(
-            parameter=(["iteration", "parameter_index"], parameters),
-            log_likelihood=(["iteration"], log_likelihoods),
+            parameter=(['iteration', 'parameter_index'], parameters),
+            log_likelihood=(['iteration'], log_likelihoods),
         ),
         coords=dict(
             iterations=iterations,
