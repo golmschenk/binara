@@ -4,9 +4,6 @@ requires = [
     "nanobind >=2.0.0",
     "typing_extensions >=4.0.0",
     "numpy",
-    "pandas",
-    "xarray",
-    "gobo"
 ]
 build-backend = "scikit_build_core.build"
 
@@ -29,7 +26,7 @@ wheel.py-api = "cp312"
 skip = ["pp*", "cp36-*", "cp37-*", "cp38-*", "*_i686", "*musllinux*", "*-win32"]
 build-verbosity = "3"
 test-command = "pytest {project}/tests"
-test-requires = ["pytest", "numpy", "pandas"]
+test-requires = ["pytest", "numpy", "pandas", "xarray"]
 
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.14"
