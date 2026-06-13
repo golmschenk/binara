@@ -18,3 +18,4 @@ dependencies:
       - numpy
       - pandas
       - xarray
+      - gobo
