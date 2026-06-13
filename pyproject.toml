@@ -13,6 +13,12 @@ version = "0.1.0"
 description = ""
 readme = "README.md"
 requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "pandas",
+    "xarray",
+    "gobo",
+]
 
 [project.urls]
 Homepage = "https://github.com/golmschenk/binara"
@@ -26,7 +32,7 @@ wheel.py-api = "cp312"
 skip = ["pp*", "cp36-*", "cp37-*", "cp38-*", "*_i686", "*musllinux*", "*-win32"]
 build-verbosity = "3"
 test-command = "pytest {project}/tests"
-test-requires = ["pytest", "numpy", "pandas", "xarray"]
+test-requires = ["pytest"]
 
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.14"
