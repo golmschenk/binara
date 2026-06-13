@@ -61,8 +61,6 @@ void Run_MCMC(const int tic_id, const int sector)
     double* logPx = new double[NCHAINS];
     double* temp = new double[NCHAINS];
 
-    double logLy;
-    double logPy;
     double logLmap;
     double** x;
     double*** history;
@@ -158,6 +156,8 @@ void Run_MCMC(const int tic_id, const int sector)
         {
             // Test parameters
             double* y = new double[NPARS];
+            double logLy;
+            double logPy;
 
             // Random number
             double alpha = get_uniform_random_value(random_generators_for_chains[j]);
