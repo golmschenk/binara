@@ -903,19 +903,19 @@ int RocheOverflow(double* pars)
   Finally the likelihood calculation - uses data for multiple
   sectors. Programmed to only use the gmag data
 */
-double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
-                      double all_sector_uncertainties[], long int points_per_sector[],
-                      const int NSECTORS, double all_parameters[],
-                      double mag_data[], double mag_err[])
+double Log_Likelihood(const double all_sector_phases[], const double all_sector_fluxes[],
+                      const double all_sector_uncertainties[], const long int points_per_sector[],
+                      const int NSECTORS, const double all_parameters[],
+                      const double mag_data[], const double mag_err[])
 {
     double logL_net = 0.;
 
-    int skip_samples = 0;
+    long int skip_samples = 0;
     const int npars_sector = npars_common + npars_unique;
 
     for (int sector_number = 0; sector_number < NSECTORS; sector_number++)
     {
-        double* sector_params = new double[npars_sector];
+        auto* sector_params = new double[npars_sector];
         // Assign common parameters to each sector
         for (int index = 0; index < npars_common; index++)
         {
@@ -934,37 +934,37 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
         {
             // Current order: logM1, logM2, logP, sigma_r1, sigma_r2, mu_1, tau_1, mu_2, tau_2, alpha_ref_1, alpha_ref_2
             //                alpha_t1, alpha_t2, (e, i, omega, t0, blending, flux_tune, noise_resc)_j
-            double* __temp = new double[npars_sector];
-            __temp[0] = sector_params[0];
-            __temp[1] = sector_params[1];
-            __temp[2] = sector_params[2];
-            __temp[3] = sector_params[15];
-            __temp[4] = sector_params[16];
-            __temp[5] = sector_params[17];
-            __temp[6] = sector_params[18];
-            __temp[7] = sector_params[3];
-            __temp[8] = sector_params[4];
-            __temp[9] = sector_params[5];
-            __temp[10] = sector_params[6];
-            __temp[11] = sector_params[7];
-            __temp[12] = sector_params[8];
-            __temp[13] = sector_params[9];
-            __temp[14] = sector_params[10];
-            __temp[15] = sector_params[11];
-            __temp[16] = sector_params[12];
-            __temp[17] = sector_params[13];
-            __temp[18] = sector_params[14];
-            __temp[19] = sector_params[19];
-            __temp[20] = sector_params[20];
-            __temp[21] = sector_params[21];
+            auto* _temp = new double[npars_sector];
+            _temp[0] = sector_params[0];
+            _temp[1] = sector_params[1];
+            _temp[2] = sector_params[2];
+            _temp[3] = sector_params[15];
+            _temp[4] = sector_params[16];
+            _temp[5] = sector_params[17];
+            _temp[6] = sector_params[18];
+            _temp[7] = sector_params[3];
+            _temp[8] = sector_params[4];
+            _temp[9] = sector_params[5];
+            _temp[10] = sector_params[6];
+            _temp[11] = sector_params[7];
+            _temp[12] = sector_params[8];
+            _temp[13] = sector_params[9];
+            _temp[14] = sector_params[10];
+            _temp[15] = sector_params[11];
+            _temp[16] = sector_params[12];
+            _temp[17] = sector_params[13];
+            _temp[18] = sector_params[14];
+            _temp[19] = sector_params[19];
+            _temp[20] = sector_params[20];
+            _temp[21] = sector_params[21];
 
-            // And now move back to __temp
+            // And now move back to _temp
             for (int ii = 0; ii < npars_sector; ii++)
             {
                 //printf("Sector parameters original %d: %f \n", ii, sector_params[ii]);
-                sector_params[ii] = __temp[ii];
+                sector_params[ii] = _temp[ii];
             }
-            free(__temp);
+            free(_temp);
             for (int ii = 0; ii < npars_sector; ii++)
             {
                 //printf("Sector parameters changed %d: %f \n", ii, sector_params[ii]);
@@ -972,17 +972,17 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
         }
 
         // Similary make sector-specific phase, flux and error arrays
-        const int Npoints_in_sector = points_per_sector[sector_number];
-        double* sector_flux = new double[Npoints_in_sector];
-        double* sector_phase = new double[Npoints_in_sector];
-        double* sector_uncetainties = new double[Npoints_in_sector];
-        double* sector_template = new double[Npoints_in_sector];
+        const long int Npoints_in_sector = points_per_sector[sector_number];
+        auto* sector_flux = new double[Npoints_in_sector];
+        auto* sector_phase = new double[Npoints_in_sector];
+        auto* sector_uncertainties = new double[Npoints_in_sector];
+        auto* sector_template = new double[Npoints_in_sector];
 
         for (int index = 0; index < Npoints_in_sector; index++)
         {
             sector_flux[index] = all_sector_fluxes[skip_samples + index];
             sector_phase[index] = all_sector_phases[skip_samples + index];
-            sector_uncetainties[index] = all_sector_uncertainties[skip_samples + index];
+            sector_uncertainties[index] = all_sector_uncertainties[skip_samples + index];
         }
 
         // Calculate Roche Overflow
@@ -1003,16 +1003,15 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
         double chi2_local = 0.;
         for (int index = 0; index < Npoints_in_sector; index++)
         {
-            double point_uncertainty = fmax(1.e-4, sector_uncetainties[index]);
-            double residual = (sector_template[index] - sector_flux[index]) /
-                point_uncertainty;
+            const double point_uncertainty = fmax(1.e-4, sector_uncertainties[index]);
+            const double residual = (sector_template[index] - sector_flux[index]) / point_uncertainty;
             chi2_local += residual * residual;
         }
 
         // From the rescaling term
         double ln_noise_resc = sector_params[21];
         chi2_local = chi2_local / exp(2 * ln_noise_resc);
-        double logL_resc_term = -Npoints_in_sector * ln_noise_resc;
+        double logL_resc_term = static_cast<double>(-Npoints_in_sector) * ln_noise_resc;
 
         // The gmag information
         if (get_configuration().should_use_g_magnitude())
@@ -1037,12 +1036,12 @@ double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
         }
 
         skip_samples += points_per_sector[sector_number];
-        logL_net += (-chi2_local / 2.0 + logL_resc_term);
+        logL_net += -chi2_local / 2.0 + logL_resc_term;
 
         free(sector_params);
         free(sector_flux);
         free(sector_phase);
-        free(sector_uncetainties);
+        free(sector_uncertainties);
         free(sector_template);
     }
 
