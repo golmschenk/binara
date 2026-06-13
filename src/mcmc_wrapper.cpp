@@ -137,7 +137,7 @@ void Run_MCMC(const int tic_id, const int sector)
         index[i] = i;
     }
 
-    logLmap = Log_Likelihood(times, fluxes, errors, points_per_sector,
+    logLmap = calculate_log_likelihood(times, fluxes, errors, points_per_sector,
                              NSECTORS, xmap, magdata, magerr);
     printf("Log likelihood is %f\n", logLmap);
 
@@ -255,9 +255,9 @@ void Run_MCMC(const int tic_id, const int sector)
             logPy = Log_Prior(NPARS, y, gauss_pars);
 
             //compute current and trial likelihood
-            logLx[chain_id] = Log_Likelihood(times, fluxes, errors, points_per_sector,
+            logLx[chain_id] = calculate_log_likelihood(times, fluxes, errors, points_per_sector,
                                              NSECTORS, x[chain_id], magdata, magerr);
-            logLy = Log_Likelihood(times, fluxes, errors, points_per_sector,
+            logLy = calculate_log_likelihood(times, fluxes, errors, points_per_sector,
                                    NSECTORS, y, magdata, magerr);
 
             /* evaluate new solution */

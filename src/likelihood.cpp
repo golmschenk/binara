@@ -903,7 +903,7 @@ int RocheOverflow(double* pars)
   Finally the likelihood calculation - uses data for multiple
   sectors. Programmed to only use the gmag data
 */
-double Log_Likelihood(const double all_sector_phases[], const double all_sector_fluxes[],
+double calculate_log_likelihood(const double all_sector_phases[], const double all_sector_fluxes[],
                       const double all_sector_uncertainties[], const long int points_per_sector[],
                       const int NSECTORS, const double all_parameters[],
                       const double mag_data[], const double mag_err[])
