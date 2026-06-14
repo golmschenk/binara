@@ -11,10 +11,10 @@ void Trajectory(double* times, double* traj_pars, double* d_arr,
 extern "C" {
 #endif
 void Calculate_Lightcurve(double* times, size_t Nt, double* pars, double* template_, EclipseMethod eclipse_method);
-double calculate_log_likelihood(double all_sector_phases[], double all_sector_fluxes[],
-                      double all_sector_uncertainties[], long int points_per_sector[],
-                      int NSECTORS, double all_parameters[],
-                      double mag_data[], double mag_err[]);
+double calculate_log_likelihood(const double all_sector_phases[], const double all_sector_fluxes[],
+                                const double all_sector_uncertainties[], const long int points_per_sector[],
+                                int NSECTORS, const double all_parameters[],
+                                const double mag_data[], const double mag_err[]);
 #ifdef __cplusplus
 }
 #endif
