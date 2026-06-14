@@ -12,7 +12,7 @@
 #include "python_interrupt_handling.h"
 #include <nanobind/nanobind.h>
 
-extern "C" void check_for_and_handle_python_interrupt()
+void check_for_and_handle_python_interrupt()
 {
     if (PyErr_CheckSignals() != 0)
     {
@@ -21,7 +21,7 @@ extern "C" void check_for_and_handle_python_interrupt()
 }
 
 #else
-extern "C" void check_for_and_handle_python_interrupt()
+void check_for_and_handle_python_interrupt()
 {
 }
 #endif
