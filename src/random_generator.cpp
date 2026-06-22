@@ -26,7 +26,6 @@ public:
     }
 };
 
-extern "C" {
 RandomGenerator* create_random_generator(const unsigned int seed)
 {
     return new RandomGenerator(seed);
@@ -45,5 +44,4 @@ double get_normal_random_value(RandomGenerator* generator)
 void destroy_random_generator(RandomGenerator* generator)
 {
     delete generator;
-}
 }

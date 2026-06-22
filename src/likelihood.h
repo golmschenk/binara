@@ -7,18 +7,11 @@ extern const int npars_common, npars_unique;
 void Trajectory(double* times, double* traj_pars, double* d_arr,
                 double* Z1_arr, double* Z2_arr, double* rr_arr,
                 double* ff_arr, int Nt);
-#ifdef __cplusplus
-extern "C" {
-#endif
 void Calculate_Lightcurve(double* times, size_t Nt, double* pars, double* template_, EclipseMethod eclipse_method);
-double Log_Likelihood(double all_sector_phases[], double all_sector_fluxes[],
-                      double all_sector_uncertainties[], long int points_per_sector[],
-                      int NSECTORS, double all_parameters[],
-                      double mag_data[], double mag_err[]);
-#ifdef __cplusplus
-}
-#endif
+double calculate_log_likelihood(const double all_sector_phases[], const double all_sector_fluxes[],
+                                const double all_sector_uncertainties[], const long int points_per_sector[],
+                                int NSECTORS, const double all_parameters[],
+                                const double mag_data[], const double mag_err[]);
 void Swap(double* a, double* b);
-
 double Log_Prior(int NPARS, double* parameter_values, gauss_bounds* gauss_pars);
 #endif

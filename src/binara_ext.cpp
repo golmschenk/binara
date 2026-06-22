@@ -33,5 +33,5 @@ NB_MODULE(binara_ext, module)
     module.def("internal_run_mcmc", &Run_MCMC);
     module.def("internal_calculate_light_curve", &internal_calculate_light_curve,
                nb::arg("times"), nb::arg("parameters"), nb::arg("eclipse_method"));
-    module.def("internal_calculate_log_likelihood", &Log_Likelihood);
+    module.def("internal_calculate_log_likelihood", &calculate_log_likelihood);
 }
