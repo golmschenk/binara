@@ -140,11 +140,11 @@ std::filesystem::path Configuration::initialize_session_directory_path(const int
         session_name = std::format("{}_{}", get_datetime_string(), session_name);
     }
     std::filesystem::path session_directory = sessions_root_directory / session_name;
-    if (std::filesystem::exists(session_directory))
-    {
-        std::cerr << "Output session directory `" << session_directory << "` already exists. Halting program.";
-        exit(105);
-    }
+    //if (std::filesystem::exists(session_directory))
+    //{
+    //    std::cerr << "Output session directory `" << session_directory << "` already exists. Halting program.";
+    //    exit(105);
+    //}
     std::filesystem::create_directories(session_directory);
     return session_directory;
 }

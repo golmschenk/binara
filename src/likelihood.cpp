@@ -68,9 +68,7 @@ void Remove_Median(double* arr, long begin, long end, double med_2)
     QuickSort(sorted_arr, 0, Nt - 1);
 
     int mid;
-    if (Nt % 2 == 0) mid = (int)Nt / 2;
-    else mid = (int)Nt / 2 + 1;
-
+    mid = (int)Nt / 2;
 
     double median = sorted_arr[mid];
     //printf("Sorted median is %f\n",median);

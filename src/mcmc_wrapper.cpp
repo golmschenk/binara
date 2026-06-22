@@ -4,7 +4,7 @@
 #include <iosfwd>
 #include <iomanip>
 #include <iostream>
-
+#include <cmath>
 #include "python_interrupt_handling.h"
 #include "random_generator.h"
 #include "configuration.h"
@@ -61,8 +61,8 @@ void Run_MCMC(const int tic_id, const int sector)
     double* logPx = new double[NCHAINS];
     double* temp = new double[NCHAINS];
 
-    double logLy;
-    double logPy;
+    //double logLy;
+    //double logPy;
     double logLmap;
     double** x;
     double*** history;
@@ -76,6 +76,7 @@ void Run_MCMC(const int tic_id, const int sector)
     int DEtrial = 0;
     int DEacc = 0;
     int* index = new int[NCHAINS];
+
 
     auto** random_generators_for_chains = new RandomGenerator*[NCHAINS];
 
@@ -645,10 +646,39 @@ void Log_Data(int iter, double** x, double* logLx, int* index,
 }
 
 // Read parameters from the existing paramters file
+// void Read_Parameters(double** X, const int NPARS, const int NCHAINS)
+// {
+//     std::filesystem::path path = get_configuration().get_parameters_path();
+//     if (!std::filesystem::is_empty(path))
+//     {
+//         std::cout << "Reading parameters from existing parameters file: " << path << std::endl;
+//         std::ifstream par_file(path);
+//
+//         for (int i = 0; i < NPARS; i++)
+//         {
+//             double temp;
+//             par_file >> temp;
+//             for (int j = 0; j < NCHAINS; j++)
+//             {
+//                 if (j == 4)
+//                 {
+//                     temp = cos(temp);
+//                 }
+//                 X[j][i] = temp;
+//             }
+//             std::cout << "Read parameters: " << X[0][i] << "\t";
+//         }
+//     }
+//     else
+//     {
+//         std::cout << "Parameters file is empty; initializing random parameters." << std::endl;
+//     }
+//}
 void Read_Parameters(double** X, const int NPARS, const int NCHAINS)
 {
     std::filesystem::path path = get_configuration().get_parameters_path();
-    if (!std::filesystem::is_empty(path))
+
+    if (std::filesystem::exists(path) && !std::filesystem::is_empty(path))
     {
         std::cout << "Reading parameters from existing parameters file: " << path << std::endl;
         std::ifstream par_file(path);
@@ -656,16 +686,25 @@ void Read_Parameters(double** X, const int NPARS, const int NCHAINS)
         for (int i = 0; i < NPARS; i++)
         {
             double temp;
-            par_file >> temp;
+
+            if (!(par_file >> temp))
+            {
+                std::cerr << "Failed to read parameter " << i
+                          << " from " << path << std::endl;
+                exit(200);
+            }
+
+            if (i == 4)
+            {
+                temp = cos(temp);
+            }
+
             for (int j = 0; j < NCHAINS; j++)
             {
-                if (j == 4)
-                {
-                    temp = cos(temp);
-                }
                 X[j][i] = temp;
             }
-            std::cout << "Read parameters: " << X[0][i] << "\t";
+
+            std::cout << "Read parameter " << i << ": " << X[0][i] << "\t";
         }
     }
     else
