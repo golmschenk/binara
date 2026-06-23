@@ -142,6 +142,23 @@ void Run_MCMC(const int tic_id, const int sector)
     printf("Log likelihood is %f\n", logLmap);
 
     Read_Parameters(x, NPARS, NCHAINS);
+    for (int j = 0; j < NCHAINS; j++)
+    {
+        x[j][21] = 0.0;
+    }
+
+    for (int j = 0; j < NCHAINS; j++)
+    {
+        logLx[j] = calculate_log_likelihood(
+            times, fluxes, errors, points_per_sector,
+            NSECTORS, x[j], magdata, magerr
+        );
+
+        logPx[j] = Log_Prior(NPARS, x[j], gauss_pars);
+    }
+
+    logLmap = logLx[index[0]];
+    best_recorded_log_likelihood = logLmap;
 
     // Main MCMC loop starts here
     for (int iter = 0; iter < NITER; iter++)
@@ -249,17 +266,15 @@ void Run_MCMC(const int tic_id, const int sector)
 
             // Fix the period
             y[2] = log_LC_PERIOD;
+            y[21] = 0.0;
 
             // Gaussian priors
-            logPx[chain_id] = Log_Prior(NPARS, x[chain_id], gauss_pars);
             logPy = Log_Prior(NPARS, y, gauss_pars);
 
-            //compute current and trial likelihood
-            logLx[chain_id] = calculate_log_likelihood(times, fluxes, errors, points_per_sector,
-                                             NSECTORS, x[chain_id], magdata, magerr);
-            logLy = calculate_log_likelihood(times, fluxes, errors, points_per_sector,
-                                   NSECTORS, y, magdata, magerr);
-
+            logLy = calculate_log_likelihood(
+                times, fluxes, errors, points_per_sector,
+                NSECTORS, y, magdata, magerr
+            );
             /* evaluate new solution */
             alpha = get_uniform_random_value(random_generators_for_chains[j]);
 
@@ -280,6 +295,7 @@ void Run_MCMC(const int tic_id, const int sector)
                 }
 
                 logLx[chain_id] = logLy;
+                logPx[chain_id] = logPy;
 
                 if ((jump == 1) && (chain_id == 0))
                 {
@@ -672,4 +688,7 @@ void Read_Parameters(double** X, const int NPARS, const int NCHAINS)
     {
         std::cout << "Parameters file is empty; initializing random parameters." << std::endl;
     }
+
 }
+
+
