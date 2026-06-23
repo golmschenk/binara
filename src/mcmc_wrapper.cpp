@@ -137,10 +137,6 @@ void Run_MCMC(const int tic_id, const int sector)
         index[i] = i;
     }
 
-    logLmap = calculate_log_likelihood(times, fluxes, errors, points_per_sector,
-                             NSECTORS, xmap, magdata, magerr);
-    printf("Log likelihood is %f\n", logLmap);
-
     Read_Parameters(x, NPARS, NCHAINS);
     for (int j = 0; j < NCHAINS; j++)
     {
@@ -158,7 +154,7 @@ void Run_MCMC(const int tic_id, const int sector)
     }
 
     logLmap = logLx[index[0]];
-    best_recorded_log_likelihood = logLmap;
+    printf("Log likelihood is %f\n", logLmap);
 
     // Main MCMC loop starts here
     for (int iter = 0; iter < NITER; iter++)
