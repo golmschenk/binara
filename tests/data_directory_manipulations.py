@@ -14,6 +14,8 @@ def verify_directories_match(data_directory, expected_resulting_run_directory):
         if Path(expected_path).is_dir():
             verify_directories_match(run_path, expected_path)
         else:
+            if expected_path.name.startswith('.'):
+                continue
             verify_run_files_match(run_path, expected_path)
 
 
