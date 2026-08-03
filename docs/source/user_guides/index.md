@@ -6,4 +6,5 @@
 
 guide_for_building
 how_to_run_binara
+file_structure
 ```

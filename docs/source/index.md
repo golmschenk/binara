@@ -27,7 +27,6 @@ Then install `binara` within this environment.
 :maxdepth: 2
 
 user_guides/index
-developer_guides/index
 ```
 
 # Indices and tables
