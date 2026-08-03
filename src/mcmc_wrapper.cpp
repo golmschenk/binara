@@ -90,16 +90,16 @@ void Run_MCMC(const int tic_id, const int sector)
     }
 
     // Allocate memory for the mcmc arrays
-    x = (double**)malloc(NCHAINS * sizeof(double));
+    x = (double**)malloc(NCHAINS * sizeof(double*));
     for (int i = 0; i < NCHAINS; i++)
     {
         x[i] = (double*)malloc(NPARS * sizeof(double));
     }
 
-    history = (double***)malloc(NCHAINS * sizeof(double));
+    history = (double***)malloc(NCHAINS * sizeof(double**));
     for (int i = 0; i < NCHAINS; i++)
     {
-        history[i] = (double**)malloc(NPAST * sizeof(double));
+        history[i] = (double**)malloc(NPAST * sizeof(double*));
         for (int j = 0; j < NPAST; j++)
         {
             history[i][j] = (double*)malloc(NPARS * sizeof(double));
@@ -305,8 +305,8 @@ void Run_MCMC(const int tic_id, const int sector)
                 history[j][k][i] = x[chain_id][i];
             }
 
-            free(y);
-            free(dx);
+            delete[] y;
+            delete[] dx;
             atrial++;
         }
 
@@ -360,28 +360,28 @@ void Run_MCMC(const int tic_id, const int sector)
     Free_2d(x, NCHAINS);
     Free_3d(history, NCHAINS, NPAST);
 
-    free(limits);
-    free(limited);
-    free(gauss_pars);
-    free(xmap);
-    free(sigma);
-    free(points_per_sector);
-    free(times);
-    free(fluxes);
-    free(errors);
-    free(logLx);
-    free(logPx);
-    free(temp);
-    free(DEtrial_arr);
-    free(acc_arr);
-    free(DEacc_arr);
-    free(index);
+    delete[] limits;
+    delete[] limited;
+    delete[] gauss_pars;
+    delete[] xmap;
+    delete[] sigma;
+    delete[] points_per_sector;
+    delete[] times;
+    delete[] fluxes;
+    delete[] errors;
+    delete[] logLx;
+    delete[] logPx;
+    delete[] temp;
+    delete[] DEtrial_arr;
+    delete[] acc_arr;
+    delete[] DEacc_arr;
+    delete[] index;
 
     for (int i = 0; i < NCHAINS; i++)
     {
         destroy_random_generator(random_generators_for_chains[i]);
     }
-    free(random_generators_for_chains);
+    delete[] random_generators_for_chains;
     destroy_random_generator(random_generator);
 }
 
@@ -418,7 +418,7 @@ void Gaussian_Proposal(double* x, double* sigma, double scale, double temp, doub
         y[n] = x[n] + dx[n];
     }
 
-    free(dx);
+    delete[] (dx);
     return;
 }
 
@@ -466,8 +466,8 @@ void Differential_Evolution_Proposal(double* x, double** history, double* y, con
         y[n] = x[n] + dx[n];
     }
 
-    free(dx);
-    free(epsilon);
+    delete[] dx;
+    delete[] epsilon;
     return;
 }
 
