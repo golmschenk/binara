@@ -1,7 +1,7 @@
 #ifndef RANDOM_GENERATOR_H
 #define RANDOM_GENERATOR_H
 
-typedef struct RandomGenerator RandomGenerator;
+class RandomGenerator;
 
 RandomGenerator* create_random_generator(unsigned int seed);
 
