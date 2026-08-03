@@ -138,10 +138,6 @@ void Run_MCMC(const int tic_id, const int sector)
     }
 
     Read_Parameters(x, NPARS, NCHAINS);
-    for (int j = 0; j < NCHAINS; j++)
-    {
-        x[j][21] = 0.0;
-    }
 
     for (int j = 0; j < NCHAINS; j++)
     {
@@ -262,7 +258,6 @@ void Run_MCMC(const int tic_id, const int sector)
 
             // Fix the period
             y[2] = log_LC_PERIOD;
-            y[21] = 0.0;
 
             // Gaussian priors
             logPy = Log_Prior(NPARS, y, gauss_pars);
